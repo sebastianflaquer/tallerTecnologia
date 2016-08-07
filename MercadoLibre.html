@@ -1,0 +1,107 @@
+<!DOCTYPE html> 
+<html> 
+<head> 
+	<title>My Page</title> 
+	<meta charset='UTF-8'>
+	<meta name="viewport" content="width=device-width, initial-scale=1"> 
+	<link rel="stylesheet" href="http://code.jquery.com/mobile/1.2.1/jquery.mobile-1.2.1.min.css" />
+	<script src="http://code.jquery.com/jquery-1.8.3.min.js"></script>
+	<script>
+    $(document).bind('mobileinit',function(){
+        $.mobile.pushStateEnabled = false;
+    });
+	</script>
+	<script src="http://code.jquery.com/mobile/1.2.1/jquery.mobile-1.2.1.min.js"></script>
+	<script>
+		function buscar(){
+			$.mobile.loading("show");
+			$.ajax({
+				data: {q : $('#basic').val()},
+				//data: {q : "computadora"},
+				type: "GET",
+				dataType: "json",
+				url: "https://api.mercadolibre.com/sites/MLU/search",
+				success: function(data){
+					$.mobile.loading("hide");
+					resul = data;
+					mostrarLis();
+				}
+			});
+		}
+		
+		function mostrarLis(){
+			var lista = $('ul:first');
+			lista.empty();
+			for(var i = 0; i<resul.results.length;i++){
+				var aux = resul.results[i];
+				lista.append("<li><a href='#detalle' data-id='"+i+"' onclick='cargar($(this).attr(\"data-id\"))'><img src='"+aux.thumbnail+"' alt='IMAGEN'/><h2>"+aux.title+"</h2><p>"+aux.price+"</p></a></li>");
+			}
+			lista.listview('refresh');
+		}
+		
+		function cargar(id)
+		{
+			$.mobile.loading("show");
+			$.ajax({
+				type: "GET",
+				dataType: "json",
+				url: "https://api.mercadolibre.com/items/"+resul.results[id].id+"/description",
+				success: function(data){
+					desc = data;
+					if(data.text=="")
+						$('#contenido').html(data.plain_text);
+					else
+						$('#contenido').html(data.text);
+				}
+			});
+		}
+	</script>
+</head> 
+<body> 
+
+<div data-role="page">
+
+	<div data-role="header">
+		<h1>MercadoLibre</h1>
+	</div><!-- /header -->
+
+	<div data-role="content">
+		<div data-role='fieldcontain'>
+		<label for="basic">Ingrese el texto a buscar:</label>
+		<input type="text" name="name" id="basic"/>
+		</div>
+		<a data-role='button' onclick='$.mobile.loading("show");buscar();'>Buscar!</a>
+		<ul data-role='listview' data-inset="true">
+			<!--li>
+				<a href='#detalle'>
+					<h2>Titulo</h2>
+					<p>info</p>
+				</a>
+			</li-->
+		</ul>
+	</div><!-- /content -->
+	
+	<div data-role="footer">
+		<h1>My Title</h1>
+	</div><!-- /header -->
+
+</div><!-- /page -->
+
+<div id='detalle' data-role="page" data-add-back-btn='true' data-back-btn-text='Atrás'>
+
+	<div data-role="header">
+		<h1>MercadoLibre</h1>
+	</div><!-- /header -->
+
+	<div data-role="content" id='contenido'>
+	
+	</div><!-- /content -->
+	
+	<div data-role="footer">
+		<h1>My Title</h1>
+	</div><!-- /header -->
+
+</div><!-- /page -->
+
+</body>
+</html>

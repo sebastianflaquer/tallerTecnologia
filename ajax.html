@@ -1,0 +1,77 @@
+$.ajax({
+	type: "GET",
+	dataType: "json",
+	url: "http://finanzapersonal.tribus.com.uy",
+	data:{},
+	success: function(data){
+			resul = data;
+			}
+});
+
+
+//Cotizaciones
+		$.ajax({
+				type: "GET",
+				dataType: "json",
+				url: "http://finanzapersonal.tribus.com.uy/cotizaciones",
+				data: {origen:UYU, destino:USD},
+				success: function(data){
+					resul = data;
+				}
+			});
+			
+			
+//login
+$.ajax({
+	type: "GET",
+	dataType: "json",
+	url: "http://finanzapersonal.tribus.com.uy/login",
+	data:{user:admin1, password:1234},
+	success: function(data){
+			resul = data;
+			}
+});
+
+//registrar
+$.ajax({
+	type: "POST",
+	dataType: "json",
+	url: "http://finanzapersonal.tribus.com.uy/registrar",
+	data:{user:admin1, password:1234},
+	success: function(data){
+			resul = data;
+			}
+});
+
+//Monedas
+$.ajax({
+	type: "GET",
+	dataType: "json",
+	url: "http://finanzapersonal.tribus.com.uy/monedas",
+	data:{},
+	success: function(data){
+			resul = data;
+			}
+});
+
+//Categoria Ingresos
+$.ajax({
+	type: "GET",
+	dataType: "json",
+	url: "http://finanzapersonal.tribus.com.uy/categoriaIngresos",
+	data:{},
+	success: function(data){
+			resul = data;
+			}
+});
+
+//Categoria Gastos
+$.ajax({
+	type: "GET",
+	dataType: "json",
+	url: "http://finanzapersonal.tribus.com.uy/CategoriaGastos",
+	data:{},
+	success: function(data){
+			resul = data;
+			}
+});
