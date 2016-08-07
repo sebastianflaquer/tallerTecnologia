@@ -17,21 +17,25 @@
 					<span data-form="ui-icon" class="ui-icon ui-icon-home ui-icon-shadow"></span>
 				</span>
 			</a>
-			<h1>Alta</h1>
+			<h1>Inicio</h1>
 		</div>
 		<div data-role="content" data-theme="a">
 			<p>Nombre Usuario</p>
 			<hr>
-			<p></p>
-			<div data-role='fieldcontain'>
-			<label for="basic">Nombre: </label>
-			<input type="text" name="name" id="txtNomCuenta"/></br>
-			<label for="basic">Moneda: </label>
-			<input type="text" name="name" id="txtMonCuenta"/></br>
-			<label for="basic">Importe Inicial: </label>
-			<input type="number" name="name" id="txtImpCuenta"/>
-		</div>	
-		<a data-role='button'>Confirmar</a>			
+			<div class="ui-field-contain">
+			    <label for="select-native-1">Tipo de Movimiento:</label>
+			    <select name="select-native-1" id="select-native-1">
+			        <option value="1">Ingreso</option>
+			        <option value="2">Gasto</option>
+			    </select>
+			</div>
+			<label for="text-basic">Importe</label>
+			<input type="number" name="text-basic" id="text-basic" placeholder="$" value="">
+			<label for="text-basic">Descripcion:</label>
+			<input type="text" name="text-basic" id="text-basic" value="" placeholder="Ej: Gasto Auto">
+			<a data-role='button' >Confirmar</a>
+			<hr>
+			
 		</div>
 	</div>
 </body>

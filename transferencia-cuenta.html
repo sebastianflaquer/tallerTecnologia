@@ -17,21 +17,28 @@
 					<span data-form="ui-icon" class="ui-icon ui-icon-home ui-icon-shadow"></span>
 				</span>
 			</a>
-			<h1>Alta</h1>
+			<h1>Transferencia</h1>
 		</div>
 		<div data-role="content" data-theme="a">
 			<p>Nombre Usuario</p>
 			<hr>
-			<p></p>
-			<div data-role='fieldcontain'>
-			<label for="basic">Nombre: </label>
-			<input type="text" name="name" id="txtNomCuenta"/></br>
-			<label for="basic">Moneda: </label>
+			<div class="ui-field-contain">
+			    <label for="select-native-1">Cuenta Origen:</label>
+			    <select name="select-native-1" id="select-native-1">
+			        <option value="1">Cuenta 1</option>
+			        <option value="2">Cuenta 2</option>
+			    </select>
+			</div>
+			<div class="ui-field-contain">
+			    <label for="select-native-1">Cuenta Destino:</label>
+			    <select name="select-native-1" id="select-native-1">
+			        <option value="1">Cuenta 1</option>
+			        <option value="2">Cuenta 2</option>
+			    </select>
+			</div>
+			<label for="basic">Importe: </label>
 			<input type="text" name="name" id="txtMonCuenta"/></br>
-			<label for="basic">Importe Inicial: </label>
-			<input type="number" name="name" id="txtImpCuenta"/>
-		</div>	
-		<a data-role='button'>Confirmar</a>			
+			<a data-role='button'>Transferir</a>			
 		</div>
 	</div>
 </body>

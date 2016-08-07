@@ -1,61 +1,48 @@
-<!DOCTYPE html> 
-<html> 
-<head> 
-	<title>My Page</title> 
-	<meta charset='UTF-8'>
-	<meta name="viewport" content="width=device-width, initial-scale=1"> 
-	<link rel="stylesheet" href="./css/bootstrap.min.css" />
-	<link rel="stylesheet" href="http://code.jquery.com/mobile/1.2.1/jquery.mobile-1.2.1.min.css" />
+<html>
+<head>
+	<meta charset="utf-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<title>jQuery Mobile: Theme Download</title>
+	<link rel="stylesheet" href="themes/taller.min.css" />
+	<link rel="stylesheet" href="http://code.jquery.com/mobile/1.2.1/jquery.mobile.structure-1.2.1.min.css" />
 	<script src="http://code.jquery.com/jquery-1.8.3.min.js"></script>
-	<script>
-    $(document).bind('mobileinit',function(){
-        $.mobile.pushStateEnabled = false;
-    });
-	</script>
 	<script src="http://code.jquery.com/mobile/1.2.1/jquery.mobile-1.2.1.min.js"></script>
 	<script>
-	
-	function confGasto(usu, pass)
-	{
-		//alert(usu + pass);
-		$.ajax({
-			type: "GET",
-			dataType: "json",
-			url: "http://finanzapersonal.tribus.com.uy/login",
-			data:{user:usu, password:pass},
-			success: function(data){
-			resul = data;
-			alert(resul.resultado_operacion);	
-			alert(resul.resultado_login);				
-			}
+		$(document).bind('mobileinit',function(){
+			$.mobile.pushStateEnabled = false;
 		});
-	}
-	
-	</script>
-</head> 
-<body>
-
-	<div data-role="page" id="pageResitrar">
-		<div data-role="header">
-			<h1>Gastos Personales</h1>
-		</div><!-- /header -->
 		
-		<div data-role="content">
+		function confGasto(usu, pass)
+		{
+			//alert(usu + pass);
+			$.ajax({
+				type: "GET",
+				dataType: "json",
+				url: "http://finanzapersonal.tribus.com.uy/login",
+				data:{user:usu, password:pass},
+				success: function(data){
+				resul = data;
+				alert(resul.resultado_operacion);	
+				alert(resul.resultado_login);				
+				}
+			});
+		}
+	</script>
+</head>
+<body>
+	<div data-role="page" data-theme="a">
+		<div data-role="header" data-position="inline">
+			<h1>Login</h1>
+		</div>
+		<div data-role="content" data-theme="a">
 			<div data-role='fieldcontain'>
-				<label for="basic">usuario: </label>
+				<label for="basic">Usuario: </label>
 				<input type="text" name="name" id="txtUsu"/></br>
 				<label for="basic">Password: </label>
 				<input type="text" name="name" id="txtPass"/>
 			</div>
-			<a data-role='button' onclick='confGasto($("#txtUsu").val(), $("#txtPass").val())'>Login</a>	
-			
-			<div data-role="footer">
-			
-			</div>
-			<!-- /footer -->
-
+			<a data-role='button' onclick='confGasto($("#txtUsu").val(), $("#txtPass").val())'>Login</a>
 		</div>
 	</div>
-	<!-- /page -->
 </body>
 </html>
