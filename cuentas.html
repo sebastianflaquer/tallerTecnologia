@@ -7,23 +7,51 @@
 	<link rel="stylesheet" href="http://code.jquery.com/mobile/1.2.1/jquery.mobile.structure-1.2.1.min.css" />
 	<script src="http://code.jquery.com/jquery-1.8.3.min.js"></script>
 	<script src="http://code.jquery.com/mobile/1.2.1/jquery.mobile-1.2.1.min.js"></script>
+	<script src="themes/js/function.js"></script>
+	<script>
+		$(document).ready(function(){	
+			if (localStorage.userState == "false") {
+				redirect('login.html');
+			}
+			else{
+				//aca todo lo demas
+				$('#nomUsuario').html(localStorage.userName);
+				//chekea si viene de crear una cuenta
+				if(localStorage.cuentaNueva == 'true'){
+					$('#errorMessage').show().html("<div class='alert alert-danger' role='alert'><strong>Exito!!</strong>la cuenta fue creada</div>");
+					localStorage.setItem('cuentaNueva', 'false');
+				}
+				//CARGA TODAS LAS CUENTAS
+				$('#listadoCuentas').html(cargarCuentas(localStorage.userName));
+			}
+		});
+	</script>
 </head>
 <body>
 	<div data-role="page" data-theme="a">
 		<div data-role="header" data-position="inline">
-			<a class="ui-btn-left ui-btn ui-btn-icon-notext ui-btn-corner-all ui-shadow ui-btn-up-a" data-iconpos="notext" data-theme="a" data-role="button" data-icon="home" title=" Home ">
+			
+			
+			<a class="ui-btn-left ui-btn ui-btn-icon-notext ui-btn-corner-all ui-shadow ui-btn-up-a" data-iconpos="notext" data-theme="a" data-role="button" data-icon="home" title="Back">
+				<span class="ui-btn-inner ui-btn-corner-all">
+					<span class="ui-btn-text"> Home </span>
+					<span data-form="ui-icon" class="ui-icon ui-icon-back ui-icon-shadow"></span>
+				</span>
+			</a>
+			<h1>Cuentas</h1>
+			<a class="ui-btn-right ui-btn ui-btn-icon-notext ui-btn-corner-all ui-shadow ui-btn-up-a" data-iconpos="notext" data-theme="a" data-role="button" data-icon="home" title="Home">
 				<span class="ui-btn-inner ui-btn-corner-all">
 					<span class="ui-btn-text"> Home </span>
 					<span data-form="ui-icon" class="ui-icon ui-icon-home ui-icon-shadow"></span>
 				</span>
 			</a>
-			<h1>Inicio</h1>
 		</div>
 		<div data-role="content" data-theme="a">
-			<p>Nombre Usuario</p>
+			<div style="display:none" id="errorMessage"></div>
+			<p id="nomUsuario">Nombre Usuario</p>
 			<hr>
 			<p>Seleccione una Cuenta:</p>
-			<ul data-role='listview' data-inset="true">
+			<ul id="listadoCuentas" data-role='listview' data-inset="true">
 				<li>
 					<a href='#detalle'><span>Cuenta 1</span></a>
 				</li>
@@ -38,7 +66,7 @@
 				</li>
 			</ul>
 			<hr>
-			<a data-role='button' >Crear Nueva Cuenta</a>
+			<a onclick='redirect("alta-cuenta.html")' data-role='button' >Crear Nueva Cuenta</a>
 		</div>
 	</div>
 </body>

@@ -7,6 +7,51 @@
 	<link rel="stylesheet" href="http://code.jquery.com/mobile/1.2.1/jquery.mobile.structure-1.2.1.min.css" />
 	<script src="http://code.jquery.com/jquery-1.8.3.min.js"></script>
 	<script src="http://code.jquery.com/mobile/1.2.1/jquery.mobile-1.2.1.min.js"></script>
+	<script src="themes/js/function.js"></script>
+	<script>
+	
+		db = window.openDatabase("DemoSqlStorage", "1.0", "Base de datos de prueba", 5*1024*1024);
+		$(document).ready(function(){			
+			
+			cargarCuentas();
+		
+			if (localStorage.userState == "false") {
+				redirect('login.html');
+			}
+			else{
+				//aca todo lo demas
+				$('#nomUsuario').html(localStorage.userName);
+			}
+		});
+		
+		function cargarCuentas(){
+			db.transaction(function (tx) { 
+				tx.executeSql('CREATE TABLE IF NOT EXISTS Cuentas (nombre, moneda, importe)',[],function(tx,results){
+					tx.executeSql('select * from Cuentas',[],function(tx,results){
+						for(var i = 0; i<results.rows.length;i++)
+						{
+							console.log(results.rows.item(i).nombre);
+						}
+					});
+				});
+			});
+		}
+		
+		function crearCuenta(nombreCuenta, monedaCuenta, importeCuenta){
+			
+			db.transaction(function (tx) { 
+			
+			 
+				tx.executeSql('INSERT INTO Cuentas (nombre, moneda, importe) VALUES (?, ?, ?)',[nombreCuenta, monedaCuenta, importeCuenta],function(){
+					alert("Fin!");
+				});
+			  }
+			 );
+			
+		
+		}
+		
+	</script>
 </head>
 <body>
 	<div data-role="page" data-theme="a">
@@ -17,21 +62,21 @@
 					<span data-form="ui-icon" class="ui-icon ui-icon-home ui-icon-shadow"></span>
 				</span>
 			</a>
-			<h1>Alta</h1>
+			<h1>Nueva Cuenta</h1>
 		</div>
 		<div data-role="content" data-theme="a">
-			<p>Nombre Usuario</p>
+			<p id="nomUsuario">Nombre Usuario</p>
 			<hr>
 			<p></p>
 			<div data-role='fieldcontain'>
-			<label for="basic">Nombre: </label>
-			<input type="text" name="name" id="txtNomCuenta"/></br>
-			<label for="basic">Moneda: </label>
-			<input type="text" name="name" id="txtMonCuenta"/></br>
-			<label for="basic">Importe Inicial: </label>
-			<input type="number" name="name" id="txtImpCuenta"/>
-		</div>	
-		<a data-role='button'>Confirmar</a>			
+				<label for="basic">Nombre: </label>
+				<input type="text" name="name" id="txtNomCuenta"/></br>
+				<label for="basic">Moneda: </label>
+				<input type="text" name="name" id="txtMonCuenta"/></br>
+				<label for="basic">Importe Inicial: </label>
+				<input type="number" name="name" id="txtImpCuenta"/>
+			</div>	
+			<a data-role='button' onclick='crearCuenta($("#txtNomCuenta").val(), $("#txtMonCuenta").val(), $("#txtImpCuenta").val())'>Confirmar</a>
 		</div>
 	</div>
 </body>

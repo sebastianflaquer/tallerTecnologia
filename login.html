@@ -7,6 +7,7 @@
 	<link rel="stylesheet" href="http://code.jquery.com/mobile/1.2.1/jquery.mobile.structure-1.2.1.min.css" />
 	<script src="http://code.jquery.com/jquery-1.8.3.min.js"></script>
 	<script src="http://code.jquery.com/mobile/1.2.1/jquery.mobile-1.2.1.min.js"></script>
+	<script src="themes/js/function.js"></script>
 	<script>
 		$(document).bind('mobileinit',function(){
 			$.mobile.pushStateEnabled = false;
@@ -21,9 +22,18 @@
 				url: "http://finanzapersonal.tribus.com.uy/login",
 				data:{user:usu, password:pass},
 				success: function(data){
-				resul = data;
-				alert(resul.resultado_operacion);	
-				alert(resul.resultado_login);				
+					resul = data;
+					//alert(resul.resultado_operacion);	
+					//alert(resul.resultado_login);
+					if(resul.resultado_operacion == "OK" && resul.resultado_login == true){
+					
+						//Guardar en el LocalStorage sesion de variable
+						localStorage.setItem('userState', true);
+						localStorage.setItem('userName', usu);
+						redirect('inicio.html');
+					}else{
+						$('#errorMessage').show().html("<div class='alert alert-danger' role='alert'><strong>Oh Margot!</strong> Usuario o Password incorrectos</div>");
+					}
 				}
 			});
 		}
@@ -35,12 +45,13 @@
 			<h1>Login</h1>
 		</div>
 		<div data-role="content" data-theme="a">
+			<div style="display:none" id="errorMessage"></div>
 			<div data-role='fieldcontain'>
 				<label for="basic">Usuario: </label>
 				<input type="text" name="name" id="txtUsu"/></br>
 				<label for="basic">Password: </label>
 				<input type="text" name="name" id="txtPass"/>
-			</div>
+			</div>			
 			<a data-role='button' onclick='confGasto($("#txtUsu").val(), $("#txtPass").val())'>Login</a>
 		</div>
 	</div>
