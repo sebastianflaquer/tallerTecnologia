@@ -9,7 +9,11 @@
 	<script src="http://code.jquery.com/mobile/1.2.1/jquery.mobile-1.2.1.min.js"></script>
 	<script src="themes/js/function.js"></script>
 	<script>
+	
+	db = window.openDatabase("DemoSqlStorage", "1.0", "Base de datos de prueba", 5*1024*1024);
 		$(document).ready(function(){	
+			<!-- cargarCuentas();
+			<!-- crearCuenta('cuentaPrueba', 'UYU', 1000); -->
 			if (localStorage.userState == "false") {
 				redirect('login.html');
 			}
@@ -25,6 +29,56 @@
 				$('#listadoCuentas').html(cargarCuentas(localStorage.userName));
 			}
 		});
+		
+		
+		
+		
+		//PRUEBA
+		
+		function cargarCuentas(){
+			db.transaction(function (tx) { 
+				tx.executeSql('CREATE TABLE IF NOT EXISTS Cuentas (nombre, moneda, importe)',[],function(tx,results){
+					tx.executeSql('select * from Cuentas',[],function(tx,results){
+						for(var i = 0; i<results.rows.length;i++)
+						{
+							console.log(results.rows.item(i).nombre);
+							mostrarListaCuentas(results.rows.item(i).nombre);
+						}
+					});
+				});
+			});
+		}
+		
+		
+		
+		function mostrarListaCuentas(nombreCuenta){
+			var lista = $('ul:first');
+			<!-- listadoCuentas.empty(); -->
+			<!-- for(var i = 0; i<resultadoConsulta.results.length;i++){ -->
+				<!-- var aux = resultadoConsulta.results[i]; -->
+				listadoCuentas.append("<li><a href='#detalle' onclick='#'/><h2>"+nombreCuenta+"</h2><p>"+nombreCuenta+"</p></a></li>");
+			
+			resultadoConsulta.listview('refresh');
+		}
+		
+		
+		
+		function crearCuenta(nombreCuenta, monedaCuenta, importeCuenta){
+			
+			db.transaction(function (tx) { 
+			
+			 
+				tx.executeSql('INSERT INTO Cuentas (nombre, moneda, importe) VALUES (?, ?, ?)',[nombreCuenta, monedaCuenta, importeCuenta],function(){
+					alert("Fin!");
+				});
+			  }
+			 );
+			
+		
+		}
+		
+		
+		
 	</script>
 </head>
 <body>
@@ -52,7 +106,7 @@
 			<hr>
 			<p>Seleccione una Cuenta:</p>
 			<ul id="listadoCuentas" data-role='listview' data-inset="true">
-				<li>
+				<!-- <li>
 					<a href='#detalle'><span>Cuenta 1</span></a>
 				</li>
 				<li>
@@ -63,7 +117,7 @@
 				</li>
 				<li>
 					<a href='#detalle'><span>Cuenta 4</span></a>
-				</li>
+				</li> -->
 			</ul>
 			<hr>
 			<a onclick='redirect("alta-cuenta.html")' data-role='button' >Crear Nueva Cuenta</a>

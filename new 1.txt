@@ -1,0 +1,14 @@
+
+Volver
+<a href=«pagina_anterior.html» data-rel»back»> Volver atrás</a>
+
+Transitions
+
+<a href=«nueva_pagina.html» data-transition=«tipo_transición»>Nueva página </a>
+
+fade
+slide
+slidefade
+slideup
+slidedown
+turn
