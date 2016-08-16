@@ -25,11 +25,11 @@
 					resul = data;
 					//alert(resul.resultado_operacion);	
 					//alert(resul.resultado_login);
-					if(resul.resultado_operacion == "OK" && resul.resultado_login == true){
-					
+					if(resul.resultado_operacion == "OK" && resul.resultado_login == true){					
 						//Guardar en el LocalStorage sesion de variable
 						localStorage.setItem('userState', true);
 						localStorage.setItem('userName', usu);
+						localStorage.setItem('userID', usu);
 						redirect('inicio.html');
 					}else{
 						$('#errorMessage').show().html("<div class='alert alert-danger' role='alert'><strong>Oh Margot!</strong> Usuario o Password incorrectos</div>");

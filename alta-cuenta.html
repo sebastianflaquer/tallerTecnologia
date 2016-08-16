@@ -10,11 +10,10 @@
 	<script src="themes/js/function.js"></script>
 	<script>
 	
-		db = window.openDatabase("DemoSqlStorage", "1.0", "Base de datos de prueba", 5*1024*1024);
-		$(document).ready(function(){			
-			
-			cargarCuentas();
-		
+		db = window.openDatabase("TallerSqlStorage", "1.0", "Base de datos", 5*1024*1024);
+		$(document).ready(function(){						
+			cargarCuentas();		
+			cargarMonedas();
 			if (localStorage.userState == "false") {
 				redirect('login.html');
 			}
@@ -24,30 +23,40 @@
 			}
 		});
 		
-		function cargarCuentas(){
-			db.transaction(function (tx) { 
-				tx.executeSql('CREATE TABLE IF NOT EXISTS Cuentas (nombre, moneda, importe)',[],function(tx,results){
-					tx.executeSql('select * from Cuentas',[],function(tx,results){
-						for(var i = 0; i<results.rows.length;i++)
-						{
-							console.log(results.rows.item(i).nombre);
-						}
-					});
-				});
-			});
-		}
 		
+		
+		//CREAR CUENTA
 		function crearCuenta(nombreCuenta, monedaCuenta, importeCuenta){
 			
-			db.transaction(function (tx) { 
-			
-			 
-				tx.executeSql('INSERT INTO Cuentas (nombre, moneda, importe) VALUES (?, ?, ?)',[nombreCuenta, monedaCuenta, importeCuenta],function(){
-					alert("La cuenta fue creada con exito!");
-					redirect('cuentas.html');
+			if(nombreCuenta == "" || monedaCuenta == "" || importeCuenta == ""){
+				$('#errorMessage').show().html("<div class='alert alert-danger' role='alert'><strong>Oh Margot!!</strong>Todos los campos son requeridos</div>");
+			}else{
+				db.transaction(function (tx) { 
+					tx.executeSql('INSERT INTO Cuentas (nombre, moneda, importe, usuario) VALUES (?, ?, ?, ?)',[nombreCuenta, monedaCuenta, importeCuenta, localStorage.userName],function(){
+						alert("La cuenta fue creada con exito!");
+						redirect('cuentas.html');
+					});
 				});
-			  }
-			 );
+			}
+		}
+		
+		//CARGAR MONEDAS
+		function cargarMonedas(){
+		//Monedas
+			$.ajax({
+				type: "GET",
+				dataType: "json",
+				url: "http://finanzapersonal.tribus.com.uy/monedas",
+				data:{},
+				success: function(data){
+					resul = data;
+					<!-- var lista = $('ul:first'); -->
+					for(var i = 0; i< resul.length ; i++ ){
+						var aux = resul[i];
+						$("#selectMonedas").append("<option>"+ aux.Nombre +" - "+ aux.Sigla +"</option>");
+					}
+				}
+			});
 		}
 		
 	</script>
@@ -62,8 +71,15 @@
 				</span>
 			</a>
 			<h1>Nueva Cuenta</h1>
+			<a class="ui-btn-left ui-btn ui-btn-icon-notext ui-btn-corner-all ui-shadow ui-btn-up-a" data-iconpos="notext" data-theme="a" data-role="button" data-icon="home" data-rel="back" title="Back">
+				<span class="ui-btn-inner ui-btn-corner-all">
+					<span class="ui-btn-text"> Home </span>
+					<span data-form="ui-icon" class="ui-icon ui-icon-back ui-icon-shadow"></span>
+				</span>
+			</a>
 		</div>
 		<div data-role="content" data-theme="a">
+			<div style="display:none" id="errorMessage"></div>
 			<p id="nomUsuario">Nombre Usuario</p>
 			<hr>
 			<p></p>
@@ -71,11 +87,13 @@
 				<label for="basic">Nombre: </label>
 				<input type="text" name="name" id="txtNomCuenta"/></br>
 				<label for="basic">Moneda: </label>
-				<input type="text" name="name" id="txtMonCuenta"/></br>
+				<select id="selectMonedas" >
+				</select>
+				<br>
 				<label for="basic">Importe Inicial: </label>
 				<input type="number" name="name" id="txtImpCuenta"/>
 			</div>	
-			<a data-role='button' onclick='crearCuenta($("#txtNomCuenta").val(), $("#txtMonCuenta").val(), $("#txtImpCuenta").val())'>Confirmar</a>
+			<a data-role='button' onclick='crearCuenta($("#txtNomCuenta").val(), $("#selectMonedas").val(), $("#txtImpCuenta").val())'>Confirmar</a>
 		</div>
 	</div>
 </body>

@@ -10,10 +10,8 @@
 	<script src="themes/js/function.js"></script>
 	<script>
 	
-	db = window.openDatabase("DemoSqlStorage", "1.0", "Base de datos", 5*1024*1024);
+		db = window.openDatabase("TallerSqlStorage", "1.0", "Base de datos", 5*1024*1024);
 		$(document).ready(function(){	
-			 <!-- cargarCuentas(); -->
-			 <!-- crearCuenta('cuentaPrueba', 'UYU', 1000);  -->
 			if (localStorage.userState == "false") {
 				redirect('login.html');
 			}
@@ -26,52 +24,29 @@
 					localStorage.setItem('cuentaNueva', 'false');
 				}
 				//CARGA TODAS LAS CUENTAS
-				$('#listadoCuentas').html(cargarCuentas(localStorage.userName));
+				cargarCuentas(); 
 			}
 		});
 		
-		
-		
-		
-		//PRUEBA
-		
+		//CARGAR CUENTAS		
 		function cargarCuentas(){
+			var listadoCuentas = $('ul:first');
 			db.transaction(function (tx) { 
-				tx.executeSql('CREATE TABLE IF NOT EXISTS Cuentas (nombre, moneda, importe)',[],function(tx,results){
-					tx.executeSql('select * from Cuentas',[],function(tx,results){
-						for(var i = 0; i<results.rows.length;i++)
-						{
-							<!-- var aux = results; -->
-						   var aux = results.rows.item(i); 
+				tx.executeSql('CREATE TABLE IF NOT EXISTS Cuentas (nombre, moneda, importe, usuario)',[],function(tx,results){
+					tx.executeSql('select * from Cuentas where usuario = ?',[localStorage.userName],function(tx,results){
+						for(var i = 0; i < results.rows.length;i++){
+							listadoCuentas.append("<li><a href='#detalle' data-id='"+i+"' onclick='cargar(results.rows.item(i))'><h2>"+results.rows.item(i).nombre+"</h2><p>"+results.rows.item(i).moneda+ '  ' + results.rows.item(i).importe+"</p></a></li>");
 							console.log(results.rows.item(i).nombre);
-							mostrarListaCuentas(aux);
 						}
 					});
 				});
 			});
-		}
-		
-		
-		
-		function mostrarListaCuentas(aux){
-			var listadoCuentas = $('ul:first');
-			<!-- listadoCuentas.empty(); -->
-			<!-- for(var i = 0; i<resultadoConsulta.results.length;i++){ -->
-				<!-- var aux = resultadoConsulta.results[i]; -->
-				
-				for(var i = 0; i < aux.length; i++){
-				<!-- var aux = results[i]; -->
-				listadoCuentas.append("<li><a href='#detalle' data-id='"+aux.index+"' onclick='cargar($(this).attr(\"data-id\"))'><img src='"+aux.thumbnail+"' alt='IMAGEN'/><h2>"+aux.nombre+"</h2><p>"+aux.moneda+ '  ' + aux.importe+"</p></a></li>");
-			}
 			listadoCuentas.listview('refresh');
 		}
 		
-		
-		
-		function cargar(id)
-		{
+		function cargar(cuenta){
 			$.mobile.loading("show");
-			$('#contenido').html(id);
+			$('#contenido').html(cuenta.nombre);
 		}
 	
 		
@@ -80,9 +55,7 @@
 <body>
 	<div data-role="page" data-theme="a">
 		<div data-role="header" data-position="inline">
-			
-			
-			<a class="ui-btn-left ui-btn ui-btn-icon-notext ui-btn-corner-all ui-shadow ui-btn-up-a" data-iconpos="notext" data-theme="a" data-role="button" data-icon="home" title="Back">
+			<a class="ui-btn-left ui-btn ui-btn-icon-notext ui-btn-corner-all ui-shadow ui-btn-up-a" data-iconpos="notext" data-theme="a" data-role="button" data-icon="home" onclick='redirect("inicio.html")' title="Back">
 				<span class="ui-btn-inner ui-btn-corner-all">
 					<span class="ui-btn-text"> Home </span>
 					<span data-form="ui-icon" class="ui-icon ui-icon-back ui-icon-shadow"></span>
@@ -107,12 +80,6 @@
 				</li>
 				<li>
 					<a href='#detalle'><span>Cuenta 2</span></a>
-				</li>
-				<li>
-					<a href='#detalle'><span>Cuenta 3</span></a>
-				</li>
-				<li>
-					<a href='#detalle'><span>Cuenta 4</span></a>
 				</li> -->
 			</ul>
 			<hr>
@@ -121,7 +88,7 @@
 
 	
 	</div>
-	<div id='detalle' data-role="page" data-add-back-btn='true' data-back-btn-text='Atrás'>
+	<div id='detalle' data-role="page" data-add-back-btn='true' data-back-btn-text='Atras'>
 
 	<div data-role="header">
 		<h1>Detalle de la Cuenta</h1>

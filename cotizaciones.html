@@ -10,14 +10,20 @@
 	<script src="themes/js/function.js"></script>
 	<script>
 		$(document).ready(function(){	
-			var listaCuentas = cargarCuentas();
 			if (localStorage.userState == "false") {
 				redirect('login.html');
 			}
 			else{
+				$.ajax({
+					type: "GET",
+					dataType: "json",
+					url: "http://finanzapersonal.tribus.com.uy/cotizaciones",
+					data: {origen:UYU, destino:USD},
+					success: function(data){
+						resul = data;
+					}
+				});			
 				//aca todo lo demas
-				//Si tiene menos de 2 cuentas deberia tirar error
-				
 			}
 		});
 	</script>
@@ -31,28 +37,12 @@
 					<span data-form="ui-icon" class="ui-icon ui-icon-home ui-icon-shadow"></span>
 				</span>
 			</a>
-			<h1>Transferencia</h1>
+			<h1>Cotizaciones</h1>
 		</div>
 		<div data-role="content" data-theme="a">
 			<p>Nombre Usuario</p>
 			<hr>
-			<div class="ui-field-contain">
-			    <label for="select-native-1">Cuenta Origen:</label>
-			    <select name="select-native-1" id="select-native-1">
-			        <option value="1">Cuenta 1</option>
-			        <option value="2">Cuenta 2</option>
-			    </select>
-			</div>
-			<div class="ui-field-contain">
-			    <label for="select-native-1">Cuenta Destino:</label>
-			    <select name="select-native-1" id="select-native-1">
-			        <option value="1">Cuenta 1</option>
-			        <option value="2">Cuenta 2</option>
-			    </select>
-			</div>
-			<label for="basic">Importe: </label>
-			<input type="text" name="name" id="txtMonCuenta"/></br>
-			<a data-role='button'>Transferir</a>			
+			
 		</div>
 	</div>
 </body>

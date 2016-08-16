@@ -41,10 +41,27 @@ function crearCuenta(nomCuenta, monCuenta, impCuenta){
 }
 
 //CARGAR CUENTAS
-function cargarCuentas(){	
-	//item = "<li><a onclick='redirect(detalle-cuenta.html)'>" + e.nomCuenta + "</a></li>"
-	//return list;
+function cargarCuentas(){
+	var hola = "";
+	db = window.openDatabase("TallerSqlStorage", "1.0", "Base de datos", 5*1024*1024);
+	db.transaction(function (tx) { 
+		tx.executeSql('CREATE TABLE IF NOT EXISTS Cuentas (nombre, moneda, importe, usuario)',[],function(tx,results){
+			tx.executeSql('select * from Cuentas where usuario = ?',[localStorage.userName],function(tx,results){
+				for(var i = 0; i<results.rows.length;i++)
+				{
+					//console.log(results.rows.item(i).nombre);
+					//alert(results.rows.item(i).nombre);
+					hola += results.rows.item(i).nombre;
+				}
+			});
+		});
+	});
+	return hola;
 }
+
+
+//GET COTIZACION
+//Cotizaciones
 
 
 
