@@ -9,8 +9,7 @@
 	<script src="http://code.jquery.com/mobile/1.2.1/jquery.mobile-1.2.1.min.js"></script>
 	<script src="themes/js/function.js"></script>
 	<script>
-	
-		db = window.openDatabase("TallerSqlStorage", "1.0", "Base de datos", 5*1024*1024);
+		db = cargarBase();
 		$(document).ready(function(){						
 			cargarCuentas();		
 			cargarMonedas();
@@ -22,12 +21,8 @@
 				$('#nomUsuario').html(localStorage.userName);
 			}
 		});
-		
-		
-		
 		//CREAR CUENTA
-		function crearCuenta(nombreCuenta, monedaCuenta, importeCuenta){
-			
+		function crearCuenta(nombreCuenta, monedaCuenta, importeCuenta){			
 			if(nombreCuenta == "" || monedaCuenta == "" || importeCuenta == ""){
 				$('#errorMessage').show().html("<div class='alert alert-danger' role='alert'><strong>Oh Margot!!</strong>Todos los campos son requeridos</div>");
 			}else{

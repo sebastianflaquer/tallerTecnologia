@@ -10,7 +10,7 @@
 	<script src="themes/js/function.js"></script>
 	<script>
 		$(document).ready(function(){	
-			if(!userSatate(localStorage.userState)){
+			if(!userSatate(localStorage.userState) || localStorage.userState == undefined){
 				redirect('login.html');
 			}else{
 				//aca todo lo demas

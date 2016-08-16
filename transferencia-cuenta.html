@@ -5,19 +5,38 @@
 	<title>jQuery Mobile: Theme Download</title>
 	<link rel="stylesheet" href="themes/taller.min.css" />
 	<link rel="stylesheet" href="http://code.jquery.com/mobile/1.2.1/jquery.mobile.structure-1.2.1.min.css" />
+	
 	<script src="http://code.jquery.com/jquery-1.8.3.min.js"></script>
 	<script src="http://code.jquery.com/mobile/1.2.1/jquery.mobile-1.2.1.min.js"></script>
 	<script src="themes/js/function.js"></script>
 	<script>
-		$(document).ready(function(){	
-			var listaCuentas = cargarCuentas();
-			if (localStorage.userState == "false") {
+		$(document).ready(function(){
+			if(localStorage.userState == "false") {
 				redirect('login.html');
 			}
 			else{
 				//aca todo lo demas
+				$('#nomUsuario').html(localStorage.userName);
+				//aca todo lo demas
 				//Si tiene menos de 2 cuentas deberia tirar error
-				
+				listaCuentas = [];				
+				listaCuentas = cargarCuentas();
+				setTimeout(function(){ 
+					//si NO tiene mas de 2 cuentas	
+					if(listaCuentas.length < 2){
+						//
+						//falta ocultar todo lo demas o redireccionar despues de unos segundos o hacer algo
+						//
+						alert("entro");
+						$('#errorMessage').show().html("<div class='alert alert-danger' role='alert'><strong>Oh Margot!!</strong> Debes tener mas de 1 cuenta para poder hacer una transferencia</div>");
+						//si tiene mas de 2 y puede hacer transferencias
+					}else{
+						for(var i =0; i<listaCuentas.length; i++){
+							$("#cuentaOrigen").append("<option>" + listaCuentas[i] +"</option>");
+							$("#cuentaDestino").append("<option>" + listaCuentas[i] +"</option>");
+						}
+					}
+				}, 5000);
 			}
 		});
 	</script>
@@ -25,35 +44,44 @@
 <body>
 	<div data-role="page" data-theme="a">
 		<div data-role="header" data-position="inline">
-			<a class="ui-btn-left ui-btn ui-btn-icon-notext ui-btn-corner-all ui-shadow ui-btn-up-a" data-iconpos="notext" data-theme="a" data-role="button" data-icon="home" title=" Home ">
+			<a class="ui-btn-left ui-btn ui-btn-icon-notext ui-btn-corner-all ui-shadow ui-btn-up-a" data-iconpos="notext" data-theme="a" data-role="button" data-icon="back" data-rel="back" title="Back">
+				<span class="ui-btn-inner ui-btn-corner-all">
+					<span class="ui-btn-text">Back</span>
+					<span data-form="ui-icon" class="ui-icon ui-icon-back ui-icon-shadow"></span>
+				</span>
+			</a>
+			<h1>Transferencia</h1>
+			<a class="ui-btn-right ui-btn ui-btn-icon-notext ui-btn-corner-all ui-shadow ui-btn-up-a" data-iconpos="notext" data-theme="a" data-role="button" data-icon="home" title=" Home ">
 				<span class="ui-btn-inner ui-btn-corner-all">
 					<span class="ui-btn-text"> Home </span>
 					<span data-form="ui-icon" class="ui-icon ui-icon-home ui-icon-shadow"></span>
 				</span>
 			</a>
-			<h1>Transferencia</h1>
 		</div>
 		<div data-role="content" data-theme="a">
-			<p>Nombre Usuario</p>
+			<div style="display:none" id="errorMessage"></div>
+			<p id="nomUsuario">Nombre Usuario</p>
 			<hr>
 			<div class="ui-field-contain">
 			    <label for="select-native-1">Cuenta Origen:</label>
-			    <select name="select-native-1" id="select-native-1">
-			        <option value="1">Cuenta 1</option>
-			        <option value="2">Cuenta 2</option>
-			    </select>
+				<div>
+					<select name="select-native-1" id="cuentaOrigen">
+				    </select>
+				</div>
 			</div>
 			<div class="ui-field-contain">
 			    <label for="select-native-1">Cuenta Destino:</label>
-			    <select name="select-native-1" id="select-native-1">
-			        <option value="1">Cuenta 1</option>
-			        <option value="2">Cuenta 2</option>
-			    </select>
+				<div>
+					<select name="select-native-1" id="cuentaDestino">
+				    </select>
+				</div>
 			</div>
 			<label for="basic">Importe: </label>
 			<input type="text" name="name" id="txtMonCuenta"/></br>
-			<a data-role='button'>Transferir</a>			
+			<a data-role='button' onclick='transferirDinero($("#cuentaOrigen").val(), $("#cuentaDestino").val(), $("#txtMonCuenta").val())'>Transferir</a>
 		</div>
 	</div>
+
+
 </body>
 </html>

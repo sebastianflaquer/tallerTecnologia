@@ -30,6 +30,12 @@ function redirect (url) {
     }
 }
 
+//CARGAR Base
+function cargarBase(){
+	var base = window.openDatabase("TallerSqlStorage", "1.0", "Base de datos", 5*1024*1024);
+	return base;
+}
+
 //CREAR CUENTA
 function crearCuenta(nomCuenta, monCuenta, impCuenta){
 	//FALTA CREAR LA CUENTAL
@@ -42,7 +48,7 @@ function crearCuenta(nomCuenta, monCuenta, impCuenta){
 
 //CARGAR CUENTAS
 function cargarCuentas(){
-	var hola = "";
+	var arr = new Array();
 	db = window.openDatabase("TallerSqlStorage", "1.0", "Base de datos", 5*1024*1024);
 	db.transaction(function (tx) { 
 		tx.executeSql('CREATE TABLE IF NOT EXISTS Cuentas (nombre, moneda, importe, usuario)',[],function(tx,results){
@@ -51,13 +57,43 @@ function cargarCuentas(){
 				{
 					//console.log(results.rows.item(i).nombre);
 					//alert(results.rows.item(i).nombre);
-					hola += results.rows.item(i).nombre;
+					arr.push(results.rows.item(i).nombre);
 				}
 			});
 		});
 	});
-	return hola;
+	return arr;
 }
+
+//TRANSFERIR DINERO
+function transferirDinero(cuentaOrigen, cuentaDestino, monto){
+	//tiene que tener las 3 cosas
+	if(cuentaOrigen == "" || cuentaDestino == "" || monto == ""){
+		$('#errorMessage').show().html("<div class='alert alert-danger' role='alert'><strong>Oh Margot!!</strong> Asegurece de seleccionar cuenta de Origen y Destino tambien ingrese un Monto mayor a 0</div>");
+	}else{
+		//si origen y destino es igual muestra error
+		if(cuentaOrigen == cuentaDestino){
+			$('#errorMessage').show().html("<div class='alert alert-danger' role='alert'><strong>Oh Margot!!</strong> No se puede seleccionar la misma cuenta como origen y destino</div>");
+		}else{
+
+		}
+	}
+}
+
+
+function cambiarDinero(deMoneda, aMoneda, monto){
+
+	//
+	var moneda1 = deMoneda;
+	var moneda2 = aMoneda;
+
+	catizacion = ;
+
+
+
+}
+
+
 
 
 //GET COTIZACION
