@@ -10,10 +10,10 @@
 	<script src="themes/js/function.js"></script>
 	<script>
 	
-	db = window.openDatabase("DemoSqlStorage", "1.0", "Base de datos de prueba", 5*1024*1024);
+	db = window.openDatabase("DemoSqlStorage", "1.0", "Base de datos", 5*1024*1024);
 		$(document).ready(function(){	
-			<!-- cargarCuentas();
-			<!-- crearCuenta('cuentaPrueba', 'UYU', 1000); -->
+			 <!-- cargarCuentas(); -->
+			 <!-- crearCuenta('cuentaPrueba', 'UYU', 1000);  -->
 			if (localStorage.userState == "false") {
 				redirect('login.html');
 			}
@@ -41,8 +41,10 @@
 					tx.executeSql('select * from Cuentas',[],function(tx,results){
 						for(var i = 0; i<results.rows.length;i++)
 						{
+							<!-- var aux = results; -->
+						   var aux = results.rows.item(i); 
 							console.log(results.rows.item(i).nombre);
-							mostrarListaCuentas(results.rows.item(i).nombre);
+							mostrarListaCuentas(aux);
 						}
 					});
 				});
@@ -51,33 +53,27 @@
 		
 		
 		
-		function mostrarListaCuentas(nombreCuenta){
-			var lista = $('ul:first');
+		function mostrarListaCuentas(aux){
+			var listadoCuentas = $('ul:first');
 			<!-- listadoCuentas.empty(); -->
 			<!-- for(var i = 0; i<resultadoConsulta.results.length;i++){ -->
 				<!-- var aux = resultadoConsulta.results[i]; -->
-				listadoCuentas.append("<li><a href='#detalle' onclick='#'/><h2>"+nombreCuenta+"</h2><p>"+nombreCuenta+"</p></a></li>");
-			
-			resultadoConsulta.listview('refresh');
+				
+				for(var i = 0; i < aux.length; i++){
+				<!-- var aux = results[i]; -->
+				listadoCuentas.append("<li><a href='#detalle' data-id='"+aux.index+"' onclick='cargar($(this).attr(\"data-id\"))'><img src='"+aux.thumbnail+"' alt='IMAGEN'/><h2>"+aux.nombre+"</h2><p>"+aux.moneda+ '  ' + aux.importe+"</p></a></li>");
+			}
+			listadoCuentas.listview('refresh');
 		}
 		
 		
 		
-		function crearCuenta(nombreCuenta, monedaCuenta, importeCuenta){
-			
-			db.transaction(function (tx) { 
-			
-			 
-				tx.executeSql('INSERT INTO Cuentas (nombre, moneda, importe) VALUES (?, ?, ?)',[nombreCuenta, monedaCuenta, importeCuenta],function(){
-					alert("Fin!");
-				});
-			  }
-			 );
-			
-		
+		function cargar(id)
+		{
+			$.mobile.loading("show");
+			$('#contenido').html(id);
 		}
-		
-		
+	
 		
 	</script>
 </head>
@@ -122,6 +118,23 @@
 			<hr>
 			<a onclick='redirect("alta-cuenta.html")' data-role='button' >Crear Nueva Cuenta</a>
 		</div>
+
+	
 	</div>
+	<div id='detalle' data-role="page" data-add-back-btn='true' data-back-btn-text='Atrás'>
+
+	<div data-role="header">
+		<h1>Detalle de la Cuenta</h1>
+	</div><!-- /header -->
+
+	<div data-role="content" id='contenido'>
+	
+	</div><!-- /content -->
+	
+	<div data-role="footer">
+		<h1>My Title</h1>
+	</div><!-- /header -->
+
+</div><!-- /page -->
 </body>
 </html>

@@ -1,4 +1,5 @@
 
+Graficas, jquery plot
 Volver
 <a href=«pagina_anterior.html» data-rel»back»> Volver atrás</a>
 

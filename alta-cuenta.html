@@ -43,12 +43,11 @@
 			
 			 
 				tx.executeSql('INSERT INTO Cuentas (nombre, moneda, importe) VALUES (?, ?, ?)',[nombreCuenta, monedaCuenta, importeCuenta],function(){
-					alert("Fin!");
+					alert("La cuenta fue creada con exito!");
+					redirect('cuentas.html');
 				});
 			  }
 			 );
-			
-		
 		}
 		
 	</script>
