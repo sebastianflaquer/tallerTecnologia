@@ -35,13 +35,31 @@
 				tx.executeSql('CREATE TABLE IF NOT EXISTS Cuentas (nombre, moneda, importe, usuario)',[],function(tx,results){
 					tx.executeSql('select * from Cuentas where usuario = ?',[localStorage.userName],function(tx,results){
 						for(var i = 0; i < results.rows.length;i++){
-							listadoCuentas.append("<li><a href='#detalle' data-id='"+i+"' onclick='cargar(results.rows.item(i))'><h2>"+results.rows.item(i).nombre+"</h2><p>"+results.rows.item(i).moneda+ '  ' + results.rows.item(i).importe+"</p></a></li>");
+							var lista = $('ul:first');
+							
+							var aux = results.rows.item(i);
+							
+							lista.append("<li><a href='#detalle' data-id='"+i+"' onclick='cargar($(this).attr(\"data-id\"))'><h2>"+aux.nombre+"</h2><p>"+aux.importe+"</p></a></li>");
+							
+							//lista.append("<li><a href='#detalle' data-id='"+i+"' onclick='cargar($(this).attr(\"data-id\"))'><img src='""' alt='IMAGEN'/><h2>"+aux.importe+"</h2><p>"+aux.nombre+"</p></a></li>");
+						
+							<!-- listadoCuentas.append("<li><a href='#detalle' data-id='"+i+"' onclick='cargar(results.rows.item(i))'><span>"+results.rows.item(i).nombre+"</span><p>"+results.rows.item(i).moneda+ '  ' + results.rows.item(i).importe+"</p></a></li>"); -->
+							
+							//$("#items").append("<ul id='list' data-role='listview' data-inset='true'></ul>");
+							//listCreated = true;
+							//$("#items").trigger("create");
+							
+							//$("#listadoCuentas").append("<li>");
+							//$("#listadoCuentas").append("<a href='#detalle'<span>"+results.rows.item(i).nombre+"</span></a>");  //data-id='"+i+"' onclick='cargar(results.rows.item(i))'>
+							//$("#listadoCuentas").append("</li>");
+							//$("#listadoCuentas").listview("refresh");
+
 							console.log(results.rows.item(i).nombre);
 						}
+						 lista.listview().listview('refresh');
 					});
 				});
 			});
-			listadoCuentas.listview('refresh');
 		}
 		
 		function cargar(cuenta){
@@ -74,14 +92,16 @@
 			<p id="nomUsuario">Nombre Usuario</p>
 			<hr>
 			<p>Seleccione una Cuenta:</p>
-			<ul id="listadoCuentas" data-role='listview' data-inset="true">
-				<!-- <li>
+			
+			 <ul id="listadoCuentas" data-role='listview' data-inset="true">
+				<!--  <li>
 					<a href='#detalle'><span>Cuenta 1</span></a>
 				</li>
 				<li>
 					<a href='#detalle'><span>Cuenta 2</span></a>
-				</li> -->
-			</ul>
+				</li>  -->
+			</ul> 
+			
 			<hr>
 			<a onclick='redirect("alta-cuenta.html")' data-role='button' >Crear Nueva Cuenta</a>
 		</div>
