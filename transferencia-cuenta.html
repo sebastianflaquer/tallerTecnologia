@@ -11,6 +11,7 @@
 	<script src="themes/js/function.js"></script>
 	<script>
 		$(document).ready(function(){
+			db = cargarBase();
 			if(!userSatate(localStorage.userState) || localStorage.userState == undefined){
 				redirect('login.html');
 			}

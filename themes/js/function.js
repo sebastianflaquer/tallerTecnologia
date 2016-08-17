@@ -46,22 +46,48 @@ function crearCuenta(idCuenta, nomCuenta, monCuenta, impCuenta){
 }
 
 //CARGAR CUENTAS
+// function cargarCuentas(){
+// 	var arr = new Array();
+// 	db = window.openDatabase("TallerSqlStorage", "1.0", "Base de datos", 5*1024*1024);
+// 	db.transaction(function (tx) { 
+// 		tx.executeSql('CREATE TABLE IF NOT EXISTS Cuentas (idnombre, nombre, moneda, importe, usuario)',[],function(tx,results){
+// 			tx.executeSql('select * from Cuentas where usuario = ?',[localStorage.userName],function(tx,results){
+// 				for(var i = 0; i<results.rows.length;i++)
+// 				{
+// 					//console.log(results.rows.item(i).nombre);
+// 					//alert(results.rows.item(i).nombre);
+// 					arr.push(results.rows.item(i).nombre);
+// 				}
+// 			});
+// 		});
+// 	});
+// 	return arr;
+// }
+//CARGAR CUENTAS		
 function cargarCuentas(){
-	var arr = new Array();
-	db = window.openDatabase("TallerSqlStorage", "1.0", "Base de datos", 5*1024*1024);
+	var listadoCuentas = $('ul:first');
+	listadoCuentas.html("");
 	db.transaction(function (tx) { 
-		tx.executeSql('CREATE TABLE IF NOT EXISTS Cuentas (idnombre, nombre, moneda, importe, usuario)',[],function(tx,results){
+		tx.executeSql('CREATE TABLE IF NOT EXISTS Cuentas (nombre, moneda, importe, usuario)',[],function(tx,results){
 			tx.executeSql('select * from Cuentas where usuario = ?',[localStorage.userName],function(tx,results){
-				for(var i = 0; i<results.rows.length;i++)
+				if(results.rows.length == 0)
+					$('#errorMessage').show().html("<div class='alert alert-danger' role='alert'><strong>Oh Margot!!</strong>Aun no tienen cuentas</div>");
+				else
 				{
-					//console.log(results.rows.item(i).nombre);
-					//alert(results.rows.item(i).nombre);
-					arr.push(results.rows.item(i).nombre);
+				for(var i = 0; i < results.rows.length;i++){
+					var lista = $('ul:first');
+					var aux = results.rows.item(i);
+					var cuentaNom = aux.nombre;
+					var cuentaImpo = aux.importe;
+					lista.append("<li><a href='#detalle' data-id='"+aux.nombre+"' data-importe='"+aux.importe+"' onclick='cargar($(this).attr(\"data-id\"),$(this).attr(\"data-importe\"))'><h2>"+aux.nombre+"</h2><p>"+aux.importe+"</p></a></li>");							
+					//console.log(results.rows.item(i).nombre);							
+					//$('#contenido').html(aux.nombre + aux.importe);							
+					}
+					lista.listview().listview('refresh');
 				}
 			});
 		});
 	});
-	return arr;
 }
 
 
@@ -111,22 +137,25 @@ function crearGasto(importe, tipo, dsc, usuario)
 function restarGasto(gasto, cuenta)
 {
 	var cuenta = cuenta || localStorage.nomCuenta;
+	var total = parseInt(localStorage.ImporteActualCuenta) - parseInt(gasto);
 	db.transaction(function (tx) {
-		tx.executeSql('update Cuentas set importe =? where usuario=? AND nombre=?',[localStorage.ImporteActualCuenta - gasto, localStorage.userName, cuenta],function(tx,results){
+		tx.executeSql('update Cuentas set importe =? where usuario=? AND nombre=?',[total, localStorage.userName, cuenta],function(tx,results){
 		});
 	});
-	cargar(localStorage.nomCuenta, localStorage.ImporteActualCuenta - gasto);
+	cargar(localStorage.nomCuenta, total);
 }
 
 //ACTUALIZAR EL IMPORTE DE LA CUENTA
 function sumarIngreso(ingreso)
 {
-	var cuenta = cuenta || localStorage.nombreCuenta;
+	var cuenta = cuenta || localStorage.nomCuenta;
+	var total = parseInt(localStorage.ImporteActualCuenta) + parseInt(ingreso);
+
 	db.transaction(function (tx) {
-	tx.executeSql('update Cuentas set importe =? where usuario=? AND nombre=?',[localStorage.ImporteActualCuenta + ingreso, localStorage.userName, cuenta],function(tx,results){
+	tx.executeSql('update Cuentas set importe =? where usuario=? AND nombre=?',[total, localStorage.userName, cuenta],function(tx,results){
 		});
 	});
-	cargar(localStorage.nomCuenta, localStorage.ImporteActualCuenta + ingreso);
+	cargar(localStorage.nomCuenta, total);
 }
 
 
@@ -202,6 +231,45 @@ function cargarMovimientos(nombrecuenta){
 		});
 	});
 }	
+
+
+//EDITAR CUENTA
+function editarCuenta(nuevoNombre)
+{
+	//actualiza cuenta
+	db.transaction(function (tx) {
+		tx.executeSql('update Cuentas set nombre =? where nombre=?',[nuevoNombre, localStorage.nomCuenta],function(tx,results){
+		});
+	});
+	//actualiza movimiento
+	db.transaction(function (tx) {
+		tx.executeSql('update Movimientos set nomCuenta =? where nomCuenta=?',[nuevoNombre, localStorage.nomCuenta],function(tx,results){
+		});
+	});
+	localStorage.setItem('nomCuenta', nuevoNombre);
+	$('#listadoCuentas').listview().listview('refresh');
+	redirect('cuentas.html#cuentas');
+}
+
+//EDITAR CUENTA
+function eliminarCuenta()
+{
+	//eliminar movimientos
+	db.transaction(function (tx) {
+			tx.executeSql('Delete FROM Cuentas WHERE nombre =?',[localStorage.nomCuenta],function(tx,results){
+		});
+	});
+	
+	//eliminar cuenta
+	db.transaction(function (tx) {
+			tx.executeSql('Delete FROM Movimientos WHERE nomCuenta =?',[localStorage.nomCuenta],function(tx,results){
+				$('#listadoCuentas').listview().listview('refresh');
+				//CARGA TODAS LAS CUENTAS
+				cargarCuentas(); 
+				redirect('cuentas.html#cuentas');				
+		});
+	});	
+}
 
 
 
