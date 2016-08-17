@@ -51,12 +51,7 @@
 					});
 				});
 			});
-			
 		}
-		
-		
-		
-			
 		
 		//AGREGAR INGRESO
 		function agregarIngreso(){
@@ -202,9 +197,21 @@
 	<!-- END CUENTAS -->
 	
 	<!-- DETALLE -->
-	<div id='detalle' data-theme="a" data-role="page" data-add-back-btn='true' data-back-btn-text='Atras'>
+	<div id='detalle' data-theme="a" data-role="page">
 		<div data-role="header">
+			<a class="ui-btn-left ui-btn ui-btn-icon-notext ui-btn-corner-all ui-shadow ui-btn-up-a" data-iconpos="notext" data-theme="a" data-role="button" data-icon="home" onclick='redirect("inicio.html")' title="Back">
+				<span class="ui-btn-inner ui-btn-corner-all">
+					<span class="ui-btn-text"> Home </span>
+					<span data-form="ui-icon" class="ui-icon ui-icon-back ui-icon-shadow"></span>
+				</span>
+			</a>
 			<h1>Detalle de la Cuenta</h1>
+			<a class="ui-btn-right ui-btn ui-btn-icon-notext ui-btn-corner-all ui-shadow ui-btn-up-a" data-iconpos="notext" data-theme="a" data-role="button" data-icon="home" title="Home">
+				<span class="ui-btn-inner ui-btn-corner-all">
+					<span class="ui-btn-text"> Home </span>
+					<span data-form="ui-icon" class="ui-icon ui-icon-home ui-icon-shadow"></span>
+				</span>
+			</a>			
 		</div><!-- /header -->
 		<div data-role="content" id='contenido'>			
 			<p id="nomUsuario">Nombre Usuario</p>

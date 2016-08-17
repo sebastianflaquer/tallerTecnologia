@@ -73,7 +73,8 @@ function cargar(nombreCuenta, importeCuenta){
 	//$.mobile.loading("show");
 	$('#nomCuenta').html(nombreCuenta);
 	$('#impoCuenta').html(importeCuenta);
-	cargarMovimientos(nombreCuenta);
+	$('#movimientosCuenta').html("");
+	cargarMovimientos(localStorage.nomCuenta);
 }
 
 
@@ -85,9 +86,7 @@ function crearIngreso(importe, tipo, dsc, usuario)
 		tx.executeSql('CREATE TABLE IF NOT EXISTS Movimientos (importe, tipo, dsc, usuario, nomCuenta, tipoMov)',[],function(tx,results){
 			tx.executeSql('INSERT INTO Movimientos (importe, tipo, dsc, usuario, nomCuenta, tipoMov) VALUES (?, ?, ?, ?, ?, ?)',[importe, tipo, dsc, usuario, localStorage.nomCuenta, "Ingreso"],function(){
 				alert("Ingreso creado con exito!");
-				$('#movimientosCuenta').listview().listview('refresh');
-				sumarIngreso(importe);
-				cargarMovimientos(localStorage.nomCuenta);
+				sumarIngreso(importe);				
 				redirect('cuentas.html#detalle');
 			});
 		});
@@ -101,9 +100,7 @@ function crearGasto(importe, tipo, dsc, usuario)
 		tx.executeSql('CREATE TABLE IF NOT EXISTS Movimientos (importe, tipo, dsc, usuario, nomCuenta, tipoMov)',[],function(tx,results){
 			tx.executeSql('INSERT INTO Movimientos (importe, tipo, dsc, usuario, nomCuenta, tipoMov) VALUES (?, ?, ?, ?, ?, ?)',[importe, tipo, dsc, usuario, localStorage.nomCuenta, "Gasto"],function(){
 				alert("Gasto creado con exito!");
-				$('#movimientosCuenta').listview().listview('refresh');
-				restarGasto(importe);
-				cargarMovimientos(localStorage.nomCuenta);
+				restarGasto(importe);				
 				redirect('cuentas.html#detalle');						
 			});
 		});
@@ -113,7 +110,7 @@ function crearGasto(importe, tipo, dsc, usuario)
 //ACTUALIZAR EL IMPORTE DE LA CUENTA
 function restarGasto(gasto, cuenta)
 {
-	var cuenta = cuenta || localStorage.nombreCuenta;
+	var cuenta = cuenta || localStorage.nomCuenta;
 	db.transaction(function (tx) {
 		tx.executeSql('update Cuentas set importe =? where usuario=? AND nombre=?',[localStorage.ImporteActualCuenta - gasto, localStorage.userName, cuenta],function(tx,results){
 		});
@@ -191,6 +188,7 @@ function cotizar(MonedaA, MonedaB){
 //CARGAR MOVIMIENTOS
 function cargarMovimientos(nombrecuenta){
 	var listadoMovimientos = $('#movimientosCuenta');
+	listadoMovimientos.html("");
 	db.transaction(function (tx) { 				
 		tx.executeSql('select * from movimientos where usuario=? AND nomCuenta=?',[localStorage.userName, localStorage.nomCuenta],function(tx,results){
 			for(var i = 0; i < results.rows.length;i++){
@@ -200,7 +198,7 @@ function cargarMovimientos(nombrecuenta){
 				console.log(results.rows.item(i).nombre);							
 				//$('#contenido').html(aux.nombre + aux.importe);							
 			}
-				listadoMovimientos.listview().listview('refresh');
+			listadoMovimientos.listview().listview('refresh');
 		});
 	});
 }	
