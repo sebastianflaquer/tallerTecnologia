@@ -9,10 +9,9 @@
 	<script src="http://code.jquery.com/mobile/1.2.1/jquery.mobile-1.2.1.min.js"></script>
 	<script src="themes/js/function.js"></script>
 	<script>
-	
 		db = window.openDatabase("TallerSqlStorage", "1.0", "Base de datos", 5*1024*1024);
 		$(document).ready(function(){	
-			if (localStorage.userState == "false") {
+			if(!userSatate(localStorage.userState) || localStorage.userState == undefined){
 				redirect('login.html');
 			}
 			else{
@@ -55,32 +54,9 @@
 			
 		}
 		
-		//Detalle de cuenta
-		function cargar(nombreCuenta, importeCuenta){
-			localStorage.setItem('nomCuenta', nombreCuenta);
-			localStorage.setItem('ImporteActualCuenta', importeCuenta);			
-			//$.mobile.loading("show");
-			$('#nomCuenta').html(nombreCuenta);
-			$('#impoCuenta').html(importeCuenta);
-			cargarMovimientos(nombreCuenta);
-		}
 		
-		//CARGAR MOVIMIENTOS
-		function cargarMovimientos(nombrecuenta){
-			var listadoMovimientos = $('#movimientosCuenta');
-			db.transaction(function (tx) { 				
-				tx.executeSql('select * from movimientos where usuario=? AND nomCuenta=?',[localStorage.userName, localStorage.nomCuenta],function(tx,results){
-					for(var i = 0; i < results.rows.length;i++){
-						//var lista = $('#movimientosCuenta');
-						var aux = results.rows.item(i);
-						listadoMovimientos.prepend("<li><h4>"+ aux.importe + "</h4><p>" +aux.tipo+"</p><p>"+aux.tipoMov+"</p><p>"+aux.dsc+"</p></li>");							
-						console.log(results.rows.item(i).nombre);							
-						//$('#contenido').html(aux.nombre + aux.importe);							
-					}
-					 listadoMovimientos.listview().listview('refresh');
-				});
-			});
-		}		
+		
+			
 		
 		//AGREGAR INGRESO
 		function agregarIngreso(){
@@ -88,7 +64,7 @@
 			$.ajax({
 				type: "GET",
 				dataType: "json",
-				url: "http://finanzapersonal.tribus.com.uy/categoriaIngresos",
+				url: "http://finanzapersonal.tribus.com.uy/categoriasIngresos",
 				data:{},
 				success: function(data){
 					resul = data;
@@ -118,57 +94,7 @@
 			});
 		}
 		
-		//CREAR INGRESO
-		function crearingreso(importe, tipo, dsc, usuario)
-		{
-			db.transaction(function (tx) { 
-				tx.executeSql('CREATE TABLE IF NOT EXISTS Movimientos (importe, tipo, dsc, usuario, nomCuenta, tipoMov)',[],function(tx,results){
-					tx.executeSql('INSERT INTO Movimientos (importe, tipo, dsc, usuario, nomCuenta, tipoMov) VALUES (?, ?, ?, ?, ?, ?)',[importe, tipo, dsc, usuario, localStorage.nomCuenta, "Ingreso"],function(){
-						alert("Ingreso creado con exito!");
-						$('#movimientosCuenta').listview().listview('refresh');
-						sumarIngreso(importe);
-						cargarMovimientos(localStorage.nomCuenta);
-						redirect('cuentas.html#detalle');
-				});
-				});
-			});
-		}
 		
-		//CREAR GASTO
-		function crearGasto(importe, tipo, dsc, usuario)
-		{
-			db.transaction(function (tx) { 
-				tx.executeSql('CREATE TABLE IF NOT EXISTS Movimientos (importe, tipo, dsc, usuario, nomCuenta, tipoMov)',[],function(tx,results){
-					tx.executeSql('INSERT INTO Movimientos (importe, tipo, dsc, usuario, nomCuenta, tipoMov) VALUES (?, ?, ?, ?, ?, ?)',[importe, tipo, dsc, usuario, localStorage.nomCuenta, "Gasto"],function(){
-						alert("Gasto creado con exito!");
-						$('#movimientosCuenta').listview().listview('refresh');
-						restarGasto(importe);
-						cargarMovimientos(localStorage.nomCuenta);
-						redirect('cuentas.html#detalle');						
-					});
-				});
-			});
-		}		
-		
-		//ACTUALIZAR EL IMPORTE DE LA CUENTA
-		function restarGasto(gasto)
-		{
-			db.transaction(function (tx) {
-				tx.executeSql('update Cuentas set importe =? where usuario=? AND nombre=?',[localStorage.ImporteActualCuenta - gasto, localStorage.userName, localStorage.nomCuenta],function(tx,results){
-				});
-			});
-			cargar(localStorage.nomCuenta, localStorage.ImporteActualCuenta - gasto);
-		}
-		
-		//ACTUALIZAR EL IMPORTE DE LA CUENTA
-		function sumarIngreso(ingreso)
-		{
-			db.transaction(function (tx) {
-			tx.executeSql('update Cuentas set importe =? where usuario=? AND nombre=?',[localStorage.ImporteActualCuenta + ingreso, localStorage.userName, localStorage.nomCuenta],function(tx,results){
-				});
-			});
-			cargar(localStorage.nomCuenta, localStorage.ImporteActualCuenta + ingreso);
-		}
 		
 		//EDITAR CUENTA
 		function editarCuenta(nuevoNombre)
@@ -206,9 +132,6 @@
 			$('#listadoCuentas').listview().listview('refresh');
 			redirect('cuentas.html#cuentas');
 		}
-		
-		
-		
 	</script>
 	
 	

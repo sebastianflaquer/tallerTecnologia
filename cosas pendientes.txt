@@ -2,7 +2,7 @@
 
 1- Registro			ESTA
 2- Login			ESTA
-3- ABM Cuenta		ESTA  (falta que actualice Y ELIMINAR)
+3- ABM Cuenta		ESTA  (falta que actualice)
 4- Ingreso Cuenta	ESTA
 5- Gasto Cuenta		ESTA
 6- Transferencia	FALTA

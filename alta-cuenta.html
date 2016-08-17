@@ -13,7 +13,7 @@
 		$(document).ready(function(){						
 			cargarCuentas();		
 			cargarMonedas();
-			if (localStorage.userState == "false") {
+			if(!userSatate(localStorage.userState) || localStorage.userState == undefined){
 				redirect('login.html');
 			}
 			else{

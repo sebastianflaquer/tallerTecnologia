@@ -11,7 +11,7 @@
 	<script src="themes/js/function.js"></script>
 	<script>
 		$(document).ready(function(){
-			if(localStorage.userState == "false") {
+			if(!userSatate(localStorage.userState) || localStorage.userState == undefined){
 				redirect('login.html');
 			}
 			else{
