@@ -71,6 +71,46 @@
 			});
 		}
 		
+<<<<<<< HEAD
+=======
+		
+		
+		//EDITAR CUENTA
+		function editarCuenta(nuevoNombre)
+		{
+			//actualiza cuenta
+			db.transaction(function (tx) {
+				tx.executeSql('update Cuentas set nombre =? where nombre=?',[nuevoNombre, localStorage.nomCuenta],function(tx,results){
+				});
+			});
+			//actualiza movimiento
+			db.transaction(function (tx) {
+				tx.executeSql('update Movimientos set nomCuenta =? where nomCuenta=?',[nuevoNombre, localStorage.nomCuenta],function(tx,results){
+				});
+			});
+			localStorage.setItem('nomCuenta', nuevoNombre);	
+			cargarCuentas();
+			$('#listadoCuentas').listview().listview('refresh');
+			redirect('cuentas.html#cuentas');
+		}
+		
+		//EDITAR CUENTA
+		function eliminarCuenta()
+		{
+			//eliminar movimientos
+			db.transaction(function (tx) {
+					tx.executeSql('Delete FROM Cuentas WHERE nombre =?',[localStorage.nomCuenta],function(tx,results){
+				});
+			});
+			//eliminar cuenta
+			db.transaction(function (tx) {
+					tx.executeSql('Delete FROM Movimientos WHERE nomCuenta =?',[localStorage.nomCuenta],function(tx,results){
+				});
+			});
+			cargarCuentas();
+			$('#listadoCuentas').listview().listview('refresh');
+			redirect('cuentas.html#cuentas');
+		}
 		
 		
 		//GENERAR GRAFICA
@@ -120,6 +160,7 @@
 				});
 			
 		}	
+>>>>>>> 0f8045622b5ddca57b8b5f8aefe00b82484d12a7
 	</script>
 	
 	
