@@ -7,6 +7,7 @@
 	<link rel="stylesheet" href="http://code.jquery.com/mobile/1.2.1/jquery.mobile.structure-1.2.1.min.css" />
 	<script src="http://code.jquery.com/jquery-1.8.3.min.js"></script>
 	<script src="http://code.jquery.com/mobile/1.2.1/jquery.mobile-1.2.1.min.js"></script>
+	<script src="themes/js/function.js"></script>
 	
 	<script>
 		$(document).bind('mobileinit',function(){
@@ -14,7 +15,6 @@
 		});
 		function confGasto(usu, pass)
 		{
-		//alert(usu + pass);
 			$.ajax({
 				type: "POST",
 				dataType: "json",
@@ -22,7 +22,13 @@
 				data:{user:usu, password:pass},
 				success: function(data){
 					resul = data;
-					alert(resul.resultado_operacion);	
+					if(resul.resultado_operacion != "OK")
+							$('#errorMessage').show().html("<div class='alert alert-danger' role='alert'><strong>Oh Margot!</strong>Error, usuario ya existente..</div>");
+						else
+						{
+							alert("Genial! Ya estas registrado..");
+							redirect('login.html');
+						}
 				}
 			});
 		}
@@ -34,6 +40,7 @@
 			<h1>Registro</h1>
 		</div>
 		<div data-role="content" data-theme="a">
+		<div style="display:none" id="errorMessage"></div>
 			<div data-role='fieldcontain'>
 				<label for="basic">Usuario: </label>
 				<input type="text" name="name" id="txtUsu"/></br>

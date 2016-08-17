@@ -11,7 +11,7 @@ function userSatate(estado){
 }
 
 //URL REDIRECT
-function redirect (url) {
+function redirect(url) {
     var ua        = navigator.userAgent.toLowerCase(),
         isIE      = ua.indexOf('msie') !== -1,
         version   = parseInt(ua.substr(4, 2), 10);
@@ -37,9 +37,8 @@ function cargarBase(){
 }
 
 //CREAR CUENTA
-function crearCuenta(nomCuenta, monCuenta, impCuenta){
-	//FALTA CREAR LA CUENTAL
-	
+function crearCuenta(idCuenta, nomCuenta, monCuenta, impCuenta){
+	//FALTA CREAR LA CUENTAL	
 	//redirige a cuentas
 	localStorage.setItem('cuentaNueva', 'true');
 	redirect('cuentas.html');
@@ -51,7 +50,7 @@ function cargarCuentas(){
 	var arr = new Array();
 	db = window.openDatabase("TallerSqlStorage", "1.0", "Base de datos", 5*1024*1024);
 	db.transaction(function (tx) { 
-		tx.executeSql('CREATE TABLE IF NOT EXISTS Cuentas (nombre, moneda, importe, usuario)',[],function(tx,results){
+		tx.executeSql('CREATE TABLE IF NOT EXISTS Cuentas (idnombre, nombre, moneda, importe, usuario)',[],function(tx,results){
 			tx.executeSql('select * from Cuentas where usuario = ?',[localStorage.userName],function(tx,results){
 				for(var i = 0; i<results.rows.length;i++)
 				{

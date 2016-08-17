@@ -34,16 +34,21 @@
 			db.transaction(function (tx) { 
 				tx.executeSql('CREATE TABLE IF NOT EXISTS Cuentas (nombre, moneda, importe, usuario)',[],function(tx,results){
 					tx.executeSql('select * from Cuentas where usuario = ?',[localStorage.userName],function(tx,results){
+						if(results.rows.length == 0)
+							$('#errorMessage').show().html("<div class='alert alert-danger' role='alert'><strong>Oh Margot!!</strong>Aun no tienen cuentas</div>");
+						else
+						{
 						for(var i = 0; i < results.rows.length;i++){
 							var lista = $('ul:first');
 							var aux = results.rows.item(i);
 							var cuentaNom = aux.nombre;
 							var cuentaImpo = aux.importe;
 							lista.append("<li><a href='#detalle' data-id='"+aux.nombre+"' data-importe='"+aux.importe+"' onclick='cargar($(this).attr(\"data-id\"),$(this).attr(\"data-importe\"))'><h2>"+aux.nombre+"</h2><p>"+aux.importe+"</p></a></li>");							
-							console.log(results.rows.item(i).nombre);							
+							//console.log(results.rows.item(i).nombre);							
 							//$('#contenido').html(aux.nombre + aux.importe);							
+							}
+							lista.listview().listview('refresh');
 						}
-						 lista.listview().listview('refresh');
 					});
 				});
 			});
@@ -53,10 +58,11 @@
 		//Detalle de cuenta
 		function cargar(nombreCuenta, importeCuenta){
 			localStorage.setItem('nomCuenta', nombreCuenta);
-			cargarMovimientos(nombreCuenta);
+			localStorage.setItem('ImporteActualCuenta', importeCuenta);			
 			//$.mobile.loading("show");
 			$('#nomCuenta').html(nombreCuenta);
 			$('#impoCuenta').html(importeCuenta);
+			cargarMovimientos(nombreCuenta);
 		}
 		
 		//CARGAR MOVIMIENTOS
@@ -65,18 +71,16 @@
 			db.transaction(function (tx) { 				
 				tx.executeSql('select * from movimientos where usuario=? AND nomCuenta=?',[localStorage.userName, localStorage.nomCuenta],function(tx,results){
 					for(var i = 0; i < results.rows.length;i++){
-						var lista = $('#movimientosCuenta');
+						//var lista = $('#movimientosCuenta');
 						var aux = results.rows.item(i);
-						lista.append("<li><h4>"+ aux.importe + "</h4><p>" +aux.tipo+"</p><p>"+aux.tipoMov+"</p><p>"+aux.dsc+"</p></li>");							
+						listadoMovimientos.prepend("<li><h4>"+ aux.importe + "</h4><p>" +aux.tipo+"</p><p>"+aux.tipoMov+"</p><p>"+aux.dsc+"</p></li>");							
 						console.log(results.rows.item(i).nombre);							
 						//$('#contenido').html(aux.nombre + aux.importe);							
 					}
-					 lista.listview().listview('refresh');
+					 listadoMovimientos.listview().listview('refresh');
 				});
 			});
-		}
-		
-		
+		}		
 		
 		//AGREGAR INGRESO
 		function agregarIngreso(){
@@ -121,10 +125,13 @@
 				tx.executeSql('CREATE TABLE IF NOT EXISTS Movimientos (importe, tipo, dsc, usuario, nomCuenta, tipoMov)',[],function(tx,results){
 					tx.executeSql('INSERT INTO Movimientos (importe, tipo, dsc, usuario, nomCuenta, tipoMov) VALUES (?, ?, ?, ?, ?, ?)',[importe, tipo, dsc, usuario, localStorage.nomCuenta, "Ingreso"],function(){
 						alert("Ingreso creado con exito!");
+						$('#movimientosCuenta').listview().listview('refresh');
+						sumarIngreso(importe);
+						cargarMovimientos(localStorage.nomCuenta);
+						redirect('cuentas.html#detalle');
 				});
 				});
 			});
-			redirect('cuentas.html#listaGastoIngreso');
 		}
 		
 		//CREAR GASTO
@@ -134,15 +141,107 @@
 				tx.executeSql('CREATE TABLE IF NOT EXISTS Movimientos (importe, tipo, dsc, usuario, nomCuenta, tipoMov)',[],function(tx,results){
 					tx.executeSql('INSERT INTO Movimientos (importe, tipo, dsc, usuario, nomCuenta, tipoMov) VALUES (?, ?, ?, ?, ?, ?)',[importe, tipo, dsc, usuario, localStorage.nomCuenta, "Gasto"],function(){
 						alert("Gasto creado con exito!");
-				});
+						$('#movimientosCuenta').listview().listview('refresh');
+						restarGasto(importe);
+						cargarMovimientos(localStorage.nomCuenta);
+						redirect('cuentas.html#detalle');						
+					});
 				});
 			});
-			redirect('cuentas.html#listaGastoIngreso');
+		}		
+		
+		//ACTUALIZAR EL IMPORTE DE LA CUENTA
+		function restarGasto(gasto)
+		{
+			db.transaction(function (tx) {
+				tx.executeSql('update Cuentas set importe =? where usuario=? AND nombre=?',[localStorage.ImporteActualCuenta - gasto, localStorage.userName, localStorage.nomCuenta],function(tx,results){
+				});
+			});
+			cargar(localStorage.nomCuenta, localStorage.ImporteActualCuenta - gasto);
 		}
+		
+		//ACTUALIZAR EL IMPORTE DE LA CUENTA
+		function sumarIngreso(ingreso)
+		{
+			db.transaction(function (tx) {
+			tx.executeSql('update Cuentas set importe =? where usuario=? AND nombre=?',[localStorage.ImporteActualCuenta + ingreso, localStorage.userName, localStorage.nomCuenta],function(tx,results){
+				});
+			});
+			cargar(localStorage.nomCuenta, localStorage.ImporteActualCuenta + ingreso);
+		}
+		
+		//EDITAR CUENTA
+		function editarCuenta(nuevoNombre)
+		{
+			//actualiza cuenta
+			db.transaction(function (tx) {
+				tx.executeSql('update Cuentas set nombre =? where nombre=?',[nuevoNombre, localStorage.nomCuenta],function(tx,results){
+				});
+			});
+			//actualiza movimiento
+			db.transaction(function (tx) {
+				tx.executeSql('update Movimientos set nomCuenta =? where nomCuenta=?',[nuevoNombre, localStorage.nomCuenta],function(tx,results){
+				});
+			});
+			localStorage.setItem('nomCuenta', nuevoNombre);	
+			cargarCuentas();
+			$('#listadoCuentas').listview().listview('refresh');
+			redirect('cuentas.html#cuentas');
+		}
+		
+		//EDITAR CUENTA
+		function eliminarCuenta()
+		{
+			//eliminar movimientos
+			db.transaction(function (tx) {
+					tx.executeSql('Delete FROM Cuentas WHERE nombre =?',[localStorage.nomCuenta],function(tx,results){
+				});
+			});
+			//eliminar cuenta
+			db.transaction(function (tx) {
+					tx.executeSql('Delete FROM Movimientos WHERE nomCuenta =?',[localStorage.nomCuenta],function(tx,results){
+				});
+			});
+			cargarCuentas();
+			$('#listadoCuentas').listview().listview('refresh');
+			redirect('cuentas.html#cuentas');
+		}
+		
+		
+		
 	</script>
+	
+	
+	<style>
+		.ui-popup-screen {
+			background-image: url(data:image/gif;base64,R0lGODlhAQABAID/AMDAwAAAACH5BAEAAAAALAAAAAABAAEAAAICRAEAOw==);
+			top: 0px;
+			left: 0px;
+			right: 0px;
+			bottom: 1px;
+			position: absolute;
+			filter: Alpha(Opacity=0);
+			opacity: 0;
+			z-index: 1099;
+		}
+		.ui-overlay-a {
+			border: 1px solid 		#444 /*{a-body-border}*/;
+			background: 			#222 /*{a-body-background-color}*/;
+			color: 					#fff /*{a-body-color}*/;
+			text-shadow: 0 /*{a-body-shadow-x}*/ 1px /*{a-body-shadow-y}*/ 1px /*{a-body-shadow-radius}*/ #111 /*{a-body-shadow-color}*/;
+			font-weight: normal;
+			background-image: -webkit-gradient(linear, left top, left bottom, from( #444 /*{a-body-background-start}*/), to( #222 /*{a-body-background-end}*/)); /* Saf4+, Chrome */
+			background-image: -webkit-linear-gradient( #444 /*{a-body-background-start}*/, #222 /*{a-body-background-end}*/); /* Chrome 10+, Saf5.1+ */
+			background-image:    -moz-linear-gradient( #444 /*{a-body-background-start}*/, #222 /*{a-body-background-end}*/); /* FF3.6 */
+			background-image:     -ms-linear-gradient( #444 /*{a-body-background-start}*/, #222 /*{a-body-background-end}*/); /* IE10 */
+			background-image:      -o-linear-gradient( #444 /*{a-body-background-start}*/, #222 /*{a-body-background-end}*/); /* Opera 11.10+ */
+			background-image:         linear-gradient( #444 /*{a-body-background-start}*/, #222 /*{a-body-background-end}*/);	
+		}
+	</style>
 </head>
 <body>
-	<div data-role="page" data-theme="a">
+	<!-- CUENTAS -->
+	<div id='cuentas' data-role="page" data-theme="a">
 		<div data-role="header" data-position="inline">
 			<a class="ui-btn-left ui-btn ui-btn-icon-notext ui-btn-corner-all ui-shadow ui-btn-up-a" data-iconpos="notext" data-theme="a" data-role="button" data-icon="home" onclick='redirect("inicio.html")' title="Back">
 				<span class="ui-btn-inner ui-btn-corner-all">
@@ -158,13 +257,13 @@
 				</span>
 			</a>
 		</div>
-		<div data-role="content" data-theme="a">
+		<div data-role="content" data-theme="a">			
 			<div style="display:none" id="errorMessage"></div>
 			<p id="nomUsuario">Nombre Usuario</p>
 			<hr>
 			<p>Seleccione una Cuenta:</p>
 			
-			<ul id="listadoCuentas" data-role='listview' data-inset="true">
+			<ul id="listadoCuentas" data-role='listview' data-inset="true">				
 				<!--  <li>
 					<a href='#detalle'><span>Cuenta 1</span></a>
 				</li>
@@ -177,28 +276,72 @@
 			<a onclick='redirect("alta-cuenta.html")' data-role='button' >Crear Nueva Cuenta</a>
 		</div>
 	</div>
+	<!-- END CUENTAS -->
 	
+	<!-- DETALLE -->
 	<div id='detalle' data-theme="a" data-role="page" data-add-back-btn='true' data-back-btn-text='Atras'>
 		<div data-role="header">
 			<h1>Detalle de la Cuenta</h1>
 		</div><!-- /header -->
-		<div data-role="content" id='contenido'>
+		<div data-role="content" id='contenido'>			
 			<p id="nomUsuario">Nombre Usuario</p>
 			<hr>
 			<a data-role='button' href="#agregarIngreso" onclick="agregarIngreso()" >+ Agregar Ingreso</a>
 			<a data-role='button' href="#agregarGasto" onclick="agregarGasto()" >- Agregar Gasto</a>
+			<hr>
+			<a href="#popupDialogDelete" data-rel="popup" class="ui-btn-left ui-btn ui-btn-icon-notext ui-btn-corner-all ui-shadow ui-btn-up-a" data-iconpos="notext" data-theme="a" data-role="button">
+				<span class="ui-btn-inner ui-btn-corner-all">
+					<span class="ui-btn-text"> Delete </span>
+					<span data-form="ui-icon" class="ui-icon ui-icon-delete ui-icon-shadow"></span>
+				</span>
+			</a>
+			<a href="#popupDialogEdit" data-rel="popup" class="ui-btn-left ui-btn ui-btn-icon-notext ui-btn-corner-all ui-shadow ui-btn-up-a" data-iconpos="notext" data-theme="a" data-role="button">
+				<span class="ui-btn-inner ui-btn-corner-all">
+					<span class="ui-btn-text"> Delete </span>
+					<span data-form="ui-icon" class="ui-icon ui-icon-gear ui-icon-shadow"></span>
+				</span>
+			</a>
+			
 			<ul id="listadoCuentas" data-role='listview' data-inset="true">
 				<li>
 					<h3 id="nomCuenta"></h3>
-					<h4 id="impoCuenta"></h3>
+					<h4 id="impoCuenta"></h3>					
 				</li>
 			</ul>
+			
+			<div id="seccionMovimientos">
 			<span>Movimientos</span>
 			<ul id="movimientosCuenta" data-role='listview' data-inset="true">
 			</ul>
+			</div>
+			
+			<div data-role="popup" id="popupDialogDelete" data-overlay-theme="a" data-theme="c" style="max-width:400px;" class="ui-corner-all">
+				<div data-role="header" data-theme="a" class="ui-corner-top">
+					<h1>Eliminar Cuenta</h1>
+				</div>
+				<div data-role="content" data-theme="d" class="ui-corner-bottom ui-content" style="background-color:#fff">
+					<h3 class="ui-title">Esta seguro que desea eliminar esta cuenta?</h3>
+					<a href="#" data-role="button" data-inline="true" data-rel="back" data-theme="c">Cancelar</a>    
+					<a onclick='eliminarCuenta()' href="#" data-role="button" data-inline="true" data-rel="back" data-transition="flow" data-theme="b">Eliminar</a>  
+				</div>
+			</div>
+			
+			<div data-role="popup" id="popupDialogEdit" data-overlay-theme="a" data-theme="c" style="max-width:400px;" class="ui-corner-all">
+				<div data-role="header" data-theme="a" class="ui-corner-top">
+					<h1>Editar Cuenta</h1>
+				</div>
+				<div data-role="content" data-theme="d" class="ui-corner-bottom ui-content" style="background-color:#fff">
+					<h3 class="ui-title">Ingrese nuevo nombre para la cuenta</h3>
+					<input type="text" name="text-basic" id="txtNuevoNombreCuenta" placeholder="Ej: Caja Ahorro" value="">
+					<a href="#" data-role="button" data-inline="true" data-rel="back" data-theme="c">Cancelar</a>    
+					<a onclick='editarCuenta($("#txtNuevoNombreCuenta").val())' data-role="button" data-inline="true" data-rel="back" data-transition="flow" data-theme="b">Editar</a>				
+				</div>
+			</div>
 		</div><!-- /content -->
 	</div><!-- /page -->
+	<!-- END DETALLE -->
 	
+	<!-- AGREGAR INGRESO -->
 	<div id="agregarIngreso" data-theme="a" data-role="page" data-add-back-btn='true' data-back-btn-text='Atras'>
 		<div data-role="header">
 			<h1>Agregar Ingreso</h1>
@@ -208,14 +351,16 @@
 			<select id="selectTipoingreso" >
 			</select>
 			<label for="text-basic">Importe</label>
-			<input type="number" name="text-basic" id="txtImporteIng" placeholder="$" value="">
+			<input type="number" name="text-basic" id="txtImporteIng" placeholder="Ej: 1000" value="">
 			<label for="text-basic">Descripcion:</label>
 			<input type="text" name="text-basic" id="txtDscIng" value="" placeholder="Ej: Gasto Auto">
 			<a data-role='button' onclick='crearIngreso($("#txtImporteIng").val(), $("#selectTipoingreso").val(), $("#txtDscIng").val(),localStorage.userName)'>Confirmar</a>
 			<hr>
 		</div><!-- /content -->
 	</div>
+	<!-- END AGREGAR INGRESO -->
 	
+	<!-- AGREGAR GASTO -->
 	<div id="agregarGasto" data-theme="a" data-role="page" data-add-back-btn='true' data-back-btn-text='Atras'>
 		<div data-role="header">
 			<h1>Agregar Gasto</h1>
@@ -225,13 +370,13 @@
 			<select id="selectTipoGasto" >
 			</select>
 			<label for="text-basic">Importe</label>
-			<input type="number" name="text-basic" id="txtImporte" placeholder="$" value="">
+			<input type="number" name="text-basic" id="txtImporte" placeholder="Ej: 1000" value="">
 			<label for="text-basic">Descripcion:</label>
 			<input type="text" name="text-basic" id="txtDsc" value="" placeholder="Ej: Gasto Auto">
 			<a data-role='button' onclick='crearGasto($("#txtImporte").val(), $("#selectTipoGasto").val(), $("#txtDsc").val(), localStorage.userName)'>Confirmar</a>
 			<hr>
 		</div><!-- /content -->
 	</div>
-	
+	<!-- END AGREGAR GASTO -->	
 </body>
 </html>
