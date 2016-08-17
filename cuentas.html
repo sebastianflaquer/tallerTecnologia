@@ -8,6 +8,12 @@
 	<script src="http://code.jquery.com/jquery-1.8.3.min.js"></script>
 	<script src="http://code.jquery.com/mobile/1.2.1/jquery.mobile-1.2.1.min.js"></script>
 	<script src="themes/js/function.js"></script>
+	<script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
+	<script type="text/javascript" src="jquery.jqplot.1.0.9.d96a669/jquery.jqplot.js"></script>
+	<script type="text/javascript" src="jquery.jqplot.1.0.9.d96a669/plugins/jqplot.barRenderer.js"></script>
+	<script type="text/javascript" src="jquery.jqplot.1.0.9.d96a669/plugins/jqplot.categoryAxisRenderer.js"></script>
+	<script type="text/javascript" src="jquery.jqplot.1.0.9.d96a669/plugins/jqplot.pointLabels.js"></script>
+	<link rel="stylesheet" type="text/css" href="jquery.jqplot.1.0.9.d96a669//jquery.jqplot.css" />
 	<script>
 		db = window.openDatabase("TallerSqlStorage", "1.0", "Base de datos", 5*1024*1024);
 		$(document).ready(function(){	
@@ -127,6 +133,55 @@
 			$('#listadoCuentas').listview().listview('refresh');
 			redirect('cuentas.html#cuentas');
 		}
+		
+		
+		//GENERAR GRAFICA
+		function parametrosGrafica(){
+			db.transaction(function (tx) {
+			tx.executeSql('Select SUM(importe) FROM Movimientos WHERE nomCuenta =? AND tipoMov=? AND usuario=?',[localStorage.nomCuenta, "Gasto", localStorage.userName],function(tx,results){
+			tx.executeSql('Select SUM(importe) FROM Movimientos WHERE nomCuenta =? AND tipoMov=? AND usuario=?',[localStorage.nomCuenta, "Ingreso", localStorage.userName],function(tx,results2){
+			var auxTotGasto = results.rows.item(0).text;
+			var auxTotIngreso = results2.rows.item(0).text;
+			alert(auxTotGasto);
+			alert(auxTotIngreso);
+			mostrarGrafica(auxTotGasto, auxTotIngreso);
+					});
+				});
+			});
+		}
+		
+		
+		
+		function mostrarGrafica(gastos, ingresos){
+			//var totalIngresos = [5000];
+			//var totalGastos = [2800];
+			var ticks = ['May', 'June', 'July', 'August'];
+			var plot1 = $.jqplot('chartdiv', [gastos, ingresos], {
+			seriesDefaults:{
+            renderer:$.jqplot.BarRenderer,
+            rendererOptions: {fillToZero: true}
+			},
+			series:[
+				{label:'Ingresos'},
+				{label:'Gastos'},
+				],
+			legend: {
+				show: true,
+				placement: 'outsideGrid'
+				},
+			axes: {
+				xaxis: {
+					renderer: $.jqplot.CategoryAxisRenderer,
+					ticks: ticks
+					},
+				yaxis: {
+					pad: 1.05,
+					tickOptions: {formatString: '$%d'}
+					}
+				}
+				});
+			
+		}	
 	</script>
 	
 	
@@ -213,9 +268,11 @@
 				</span>
 			</a>			
 		</div><!-- /header -->
+		
 		<div data-role="content" id='contenido'>			
 			<p id="nomUsuario">Nombre Usuario</p>
 			<hr>
+			<a data-role='button' href="#chartdiv" onclick="parametrosGrafica()" >Ver grafica</a>
 			<a data-role='button' href="#agregarIngreso" onclick="agregarIngreso()" >+ Agregar Ingreso</a>
 			<a data-role='button' href="#agregarGasto" onclick="agregarGasto()" >- Agregar Gasto</a>
 			<hr>
@@ -308,5 +365,6 @@
 		</div><!-- /content -->
 	</div>
 	<!-- END AGREGAR GASTO -->	
+	<div id="chartdiv" style="height:400px;width:300px; "></div>
 </body>
 </html>
