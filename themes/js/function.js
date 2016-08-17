@@ -46,23 +46,24 @@ function crearCuenta(idCuenta, nomCuenta, monCuenta, impCuenta){
 }
 
 //CARGAR CUENTAS
-// function cargarCuentas(){
-// 	var arr = new Array();
-// 	db = window.openDatabase("TallerSqlStorage", "1.0", "Base de datos", 5*1024*1024);
-// 	db.transaction(function (tx) { 
-// 		tx.executeSql('CREATE TABLE IF NOT EXISTS Cuentas (idnombre, nombre, moneda, importe, usuario)',[],function(tx,results){
-// 			tx.executeSql('select * from Cuentas where usuario = ?',[localStorage.userName],function(tx,results){
-// 				for(var i = 0; i<results.rows.length;i++)
-// 				{
-// 					//console.log(results.rows.item(i).nombre);
-// 					//alert(results.rows.item(i).nombre);
-// 					arr.push(results.rows.item(i).nombre);
-// 				}
-// 			});
-// 		});
-// 	});
-// 	return arr;
-// }
+function cargarListaCuentas(){
+	var arr = new Array();
+	db = window.openDatabase("TallerSqlStorage", "1.0", "Base de datos", 5*1024*1024);
+	db.transaction(function (tx) { 
+		tx.executeSql('CREATE TABLE IF NOT EXISTS Cuentas (idnombre, nombre, moneda, importe, usuario)',[],function(tx,results){
+			tx.executeSql('select * from Cuentas where usuario = ?',[localStorage.userName],function(tx,results){
+				for(var i = 0; i<results.rows.length;i++)
+				{
+					//console.log(results.rows.item(i).nombre);
+					//alert(results.rows.item(i).nombre);
+					arr.push(results.rows.item(i).nombre);
+				}
+			});
+		});
+	});
+	return arr;
+}
+
 //CARGAR CUENTAS		
 function cargarCuentas(){
 	var listadoCuentas = $('ul:first');
@@ -74,16 +75,16 @@ function cargarCuentas(){
 					$('#errorMessage').show().html("<div class='alert alert-danger' role='alert'><strong>Oh Margot!!</strong>Aun no tienen cuentas</div>");
 				else
 				{
-				for(var i = 0; i < results.rows.length;i++){
-					var lista = $('ul:first');
-					var aux = results.rows.item(i);
-					var cuentaNom = aux.nombre;
-					var cuentaImpo = aux.importe;
-					lista.append("<li><a href='#detalle' data-id='"+aux.nombre+"' data-importe='"+aux.importe+"' onclick='cargar($(this).attr(\"data-id\"),$(this).attr(\"data-importe\"))'><h2>"+aux.nombre+"</h2><p>"+aux.importe+"</p></a></li>");							
-					//console.log(results.rows.item(i).nombre);							
-					//$('#contenido').html(aux.nombre + aux.importe);							
-					}
-					lista.listview().listview('refresh');
+					for(var i = 0; i < results.rows.length;i++){
+						var lista = $('ul:first');
+						var aux = results.rows.item(i);
+						var cuentaNom = aux.nombre;
+						var cuentaImpo = aux.importe;
+						lista.append("<li><a href='#detalle' data-id='"+aux.nombre+"' data-importe='"+aux.importe+"' onclick='cargar($(this).attr(\"data-id\"),$(this).attr(\"data-importe\"))'><h2>"+aux.nombre+"</h2><p>"+aux.importe+"</p></a></li>");							
+						//console.log(results.rows.item(i).nombre);							
+						//$('#contenido').html(aux.nombre + aux.importe);
+						lista.listview().listview('refresh');							
+					}	
 				}
 			});
 		});
@@ -170,13 +171,31 @@ function transferirDinero(cuentaOrigen, cuentaDestino, monto){
 		if(cuentaOrigen == cuentaDestino){
 			$('#errorMessage').show().html("<div class='alert alert-danger' role='alert'><strong>Oh Margot!!</strong> No se puede seleccionar la misma cuenta como origen y destino</div>");
 		}else{
-			var montoCambiado = cambiarDinero(cuentaOrigen, cuentaDestino, monto);
+			//averigua el tipo de moneda de las cuentas
+			saberMoneda(cuentaOrigen);
+			var deMoneda = localStorage.TipocuentaActual;
+			saberMoneda(cuentaDestino);
+			var aMoneda = localStorage.TipocuentaActual;
+			var montoCambiado = cambiarDinero(deMoneda, aMoneda, monto);
+
 			//agrega gasto en cuenta
 			crearGasto(monto, "Transferencia", "Transferencia entre Cuentas", localStorage.userName);
 			//agrega ingreso en cuenta
 			crearIngreso(montoCambiado, "Transferencia", "Transferencia entre Cuentas", localStorage.userName);
 		}
 	}
+}
+
+function saberMoneda(cuenta){
+	var tipoMoneda = ""
+	db.transaction(function (tx) { 				
+		tx.executeSql('select * from cuentas where nomCuenta=?',[cuenta],function(tx,results){
+			for(var i = 0; i < results.rows.length;i++){
+				var aux = results.rows.item(i);
+				localStorage.setItem("TipocuentaActual", aux.Moneda)					
+			}
+		});
+	});
 }
 
 function cambiarDinero(deMoneda, aMoneda, monto){
