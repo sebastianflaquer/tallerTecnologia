@@ -86,11 +86,11 @@
 		}
 		
 		//MOSTRAR GRAFICA
-		function mostrarGrafica(gastos, ingresos){
-			//var totalIngresos = [5000];
-			//var totalGastos = [2800];
+		function mostrarGrafica(){
+			var totalIngresos = [5000];
+			var totalGastos = [2800];
 			var ticks = ['May', 'June', 'July', 'August'];
-			var plot1 = $.jqplot('chartdiv', [gastos, ingresos], {
+			var plot1 = $.jqplot('chartdiv', [totalGastos, totalIngresos], {
 			seriesDefaults:{
             renderer:$.jqplot.BarRenderer,
             rendererOptions: {fillToZero: true}
@@ -113,7 +113,6 @@
 					tickOptions: {formatString: '$%d'}
 					}
 				}
-			});
 		}	
 	</script>
 	
@@ -205,7 +204,7 @@
 		<div data-role="content" id='contenido'>			
 			<p id="nomUsuario">Nombre Usuario</p>
 			<hr>
-			<a data-role='button' href="#chartdiv" onclick="parametrosGrafica()" >Ver grafica</a>
+			<a data-role='button' href="#chartdiv" onclick="mostrarGrafica()" >Ver grafica</a>
 			<a data-role='button' href="#agregarIngreso" onclick="agregarIngreso()" >+ Agregar Ingreso</a>
 			<a data-role='button' href="#agregarGasto" onclick="agregarGasto()" >- Agregar Gasto</a>
 			<hr>
