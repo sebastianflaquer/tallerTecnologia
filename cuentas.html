@@ -9,7 +9,8 @@
 	<script src="http://code.jquery.com/mobile/1.2.1/jquery.mobile-1.2.1.min.js"></script>
 	<script src="themes/js/function.js"></script>
 	<script>
-		db = cargarBase();
+	
+		db = window.openDatabase("TallerSqlStorage", "1.0", "Base de datos", 5*1024*1024);
 		$(document).ready(function(){	
 			if (localStorage.userState == "false") {
 				redirect('login.html');
@@ -35,12 +36,12 @@
 					tx.executeSql('select * from Cuentas where usuario = ?',[localStorage.userName],function(tx,results){
 						for(var i = 0; i < results.rows.length;i++){
 							var lista = $('ul:first');
-							
 							var aux = results.rows.item(i);
-							
-							lista.append("<li><a href='#detalle' data-id='"+i+"' onclick='cargar($(this).attr(\"data-id\"))'><h2>"+aux.nombre+"</h2><p>"+aux.importe+"</p></a></li>");
-
-							console.log(results.rows.item(i).nombre);
+							var cuentaNom = aux.nombre;
+							var cuentaImpo = aux.importe;
+							lista.append("<li><a href='#detalle' data-id='"+aux.nombre+"' data-importe='"+aux.importe+"' onclick='cargar($(this).attr(\"data-id\"),$(this).attr(\"data-importe\"))'><h2>"+aux.nombre+"</h2><p>"+aux.importe+"</p></a></li>");							
+							console.log(results.rows.item(i).nombre);							
+							//$('#contenido').html(aux.nombre + aux.importe);							
 						}
 						 lista.listview().listview('refresh');
 					});
@@ -49,12 +50,95 @@
 			
 		}
 		
-		function cargar(cuenta){
-			$.mobile.loading("show");
-			$('#contenido').html(cuenta.nombre);
+		//Detalle de cuenta
+		function cargar(nombreCuenta, importeCuenta){
+			localStorage.setItem('nomCuenta', nombreCuenta);
+			cargarMovimientos(nombreCuenta);
+			//$.mobile.loading("show");
+			$('#nomCuenta').html(nombreCuenta);
+			$('#impoCuenta').html(importeCuenta);
 		}
-	
 		
+		//CARGAR MOVIMIENTOS
+		function cargarMovimientos(nombrecuenta){
+			var listadoMovimientos = $('#movimientosCuenta');
+			db.transaction(function (tx) { 				
+				tx.executeSql('select * from movimientos where usuario=? AND nomCuenta=?',[localStorage.userName, localStorage.nomCuenta],function(tx,results){
+					for(var i = 0; i < results.rows.length;i++){
+						var lista = $('#movimientosCuenta');
+						var aux = results.rows.item(i);
+						lista.append("<li><h4>"+ aux.importe + "</h4><p>" +aux.tipo+"</p><p>"+aux.tipoMov+"</p><p>"+aux.dsc+"</p></li>");							
+						console.log(results.rows.item(i).nombre);							
+						//$('#contenido').html(aux.nombre + aux.importe);							
+					}
+					 lista.listview().listview('refresh');
+				});
+			});
+		}
+		
+		
+		
+		//AGREGAR INGRESO
+		function agregarIngreso(){
+			//Categoria Ingresos
+			$.ajax({
+				type: "GET",
+				dataType: "json",
+				url: "http://finanzapersonal.tribus.com.uy/categoriaIngresos",
+				data:{},
+				success: function(data){
+					resul = data;
+					for(var i = 0; i< resul.length ; i++ ){
+						var aux = resul[i];
+						$("#selectTipoingreso").append("<option>"+ aux +"</option>");
+					}
+				}
+			});
+		}
+		
+		//AGREGAR GASTO
+		function agregarGasto(){
+			//Categoria Gastos
+			$.ajax({
+				type: "GET",
+				dataType: "json",
+				url: "http://finanzapersonal.tribus.com.uy/categoriasGastos",
+				data:{},
+				success: function(data){
+					resul = data;
+					for(var i = 0; i< resul.length ; i++ ){
+						var aux = resul[i];
+						$("#selectTipoGasto").append("<option>"+ aux +"</option>");
+					}
+				}
+			});
+		}
+		
+		//CREAR INGRESO
+		function crearingreso(importe, tipo, dsc, usuario)
+		{
+			db.transaction(function (tx) { 
+				tx.executeSql('CREATE TABLE IF NOT EXISTS Movimientos (importe, tipo, dsc, usuario, nomCuenta, tipoMov)',[],function(tx,results){
+					tx.executeSql('INSERT INTO Movimientos (importe, tipo, dsc, usuario, nomCuenta, tipoMov) VALUES (?, ?, ?, ?, ?, ?)',[importe, tipo, dsc, usuario, localStorage.nomCuenta, "Ingreso"],function(){
+						alert("Ingreso creado con exito!");
+				});
+				});
+			});
+			redirect('cuentas.html#listaGastoIngreso');
+		}
+		
+		//CREAR GASTO
+		function crearGasto(importe, tipo, dsc, usuario)
+		{
+			db.transaction(function (tx) { 
+				tx.executeSql('CREATE TABLE IF NOT EXISTS Movimientos (importe, tipo, dsc, usuario, nomCuenta, tipoMov)',[],function(tx,results){
+					tx.executeSql('INSERT INTO Movimientos (importe, tipo, dsc, usuario, nomCuenta, tipoMov) VALUES (?, ?, ?, ?, ?, ?)',[importe, tipo, dsc, usuario, localStorage.nomCuenta, "Gasto"],function(){
+						alert("Gasto creado con exito!");
+				});
+				});
+			});
+			redirect('cuentas.html#listaGastoIngreso');
+		}
 	</script>
 </head>
 <body>
@@ -80,7 +164,7 @@
 			<hr>
 			<p>Seleccione una Cuenta:</p>
 			
-			 <ul id="listadoCuentas" data-role='listview' data-inset="true">
+			<ul id="listadoCuentas" data-role='listview' data-inset="true">
 				<!--  <li>
 					<a href='#detalle'><span>Cuenta 1</span></a>
 				</li>
@@ -92,23 +176,62 @@
 			<hr>
 			<a onclick='redirect("alta-cuenta.html")' data-role='button' >Crear Nueva Cuenta</a>
 		</div>
-
-	
 	</div>
-	<div id='detalle' data-role="page" data-add-back-btn='true' data-back-btn-text='Atras'>
-
-	<div data-role="header">
-		<h1>Detalle de la Cuenta</h1>
-	</div><!-- /header -->
-
-	<div data-role="content" id='contenido'>
 	
-	</div><!-- /content -->
+	<div id='detalle' data-theme="a" data-role="page" data-add-back-btn='true' data-back-btn-text='Atras'>
+		<div data-role="header">
+			<h1>Detalle de la Cuenta</h1>
+		</div><!-- /header -->
+		<div data-role="content" id='contenido'>
+			<p id="nomUsuario">Nombre Usuario</p>
+			<hr>
+			<a data-role='button' href="#agregarIngreso" onclick="agregarIngreso()" >+ Agregar Ingreso</a>
+			<a data-role='button' href="#agregarGasto" onclick="agregarGasto()" >- Agregar Gasto</a>
+			<ul id="listadoCuentas" data-role='listview' data-inset="true">
+				<li>
+					<h3 id="nomCuenta"></h3>
+					<h4 id="impoCuenta"></h3>
+				</li>
+			</ul>
+			<span>Movimientos</span>
+			<ul id="movimientosCuenta" data-role='listview' data-inset="true">
+			</ul>
+		</div><!-- /content -->
+	</div><!-- /page -->
 	
-	<div data-role="footer">
-		<h1>My Title</h1>
-	</div><!-- /header -->
-
-</div><!-- /page -->
+	<div id="agregarIngreso" data-theme="a" data-role="page" data-add-back-btn='true' data-back-btn-text='Atras'>
+		<div data-role="header">
+			<h1>Agregar Ingreso</h1>
+		</div><!-- /header -->
+		<div data-role="content" id='contenido'>
+			<label for="basic">Categoria: </label>
+			<select id="selectTipoingreso" >
+			</select>
+			<label for="text-basic">Importe</label>
+			<input type="number" name="text-basic" id="txtImporteIng" placeholder="$" value="">
+			<label for="text-basic">Descripcion:</label>
+			<input type="text" name="text-basic" id="txtDscIng" value="" placeholder="Ej: Gasto Auto">
+			<a data-role='button' onclick='crearIngreso($("#txtImporteIng").val(), $("#selectTipoingreso").val(), $("#txtDscIng").val(),localStorage.userName)'>Confirmar</a>
+			<hr>
+		</div><!-- /content -->
+	</div>
+	
+	<div id="agregarGasto" data-theme="a" data-role="page" data-add-back-btn='true' data-back-btn-text='Atras'>
+		<div data-role="header">
+			<h1>Agregar Gasto</h1>
+		</div><!-- /header -->
+		<div data-role="content" id='contenido'>
+			<label for="basic">Categoria: </label>
+			<select id="selectTipoGasto" >
+			</select>
+			<label for="text-basic">Importe</label>
+			<input type="number" name="text-basic" id="txtImporte" placeholder="$" value="">
+			<label for="text-basic">Descripcion:</label>
+			<input type="text" name="text-basic" id="txtDsc" value="" placeholder="Ej: Gasto Auto">
+			<a data-role='button' onclick='crearGasto($("#txtImporte").val(), $("#selectTipoGasto").val(), $("#txtDsc").val(), localStorage.userName)'>Confirmar</a>
+			<hr>
+		</div><!-- /content -->
+	</div>
+	
 </body>
 </html>

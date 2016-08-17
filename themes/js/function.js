@@ -66,32 +66,28 @@ function cargarCuentas(){
 }
 
 //TRANSFERIR DINERO
-function transferirDinero(cuentaOrigen, cuentaDestino, monto){
-	//tiene que tener las 3 cosas
-	if(cuentaOrigen == "" || cuentaDestino == "" || monto == ""){
-		$('#errorMessage').show().html("<div class='alert alert-danger' role='alert'><strong>Oh Margot!!</strong> Asegurece de seleccionar cuenta de Origen y Destino tambien ingrese un Monto mayor a 0</div>");
-	}else{
-		//si origen y destino es igual muestra error
-		if(cuentaOrigen == cuentaDestino){
-			$('#errorMessage').show().html("<div class='alert alert-danger' role='alert'><strong>Oh Margot!!</strong> No se puede seleccionar la misma cuenta como origen y destino</div>");
-		}else{
+// function transferirDinero(cuentaOrigen, cuentaDestino, monto){
+	// //tiene que tener las 3 cosas
+	// if(cuentaOrigen == "" || cuentaDestino == "" || monto == ""){
+		// $('#errorMessage').show().html("<div class='alert alert-danger' role='alert'><strong>Oh Margot!!</strong> Asegurece de seleccionar cuenta de Origen y Destino tambien ingrese un Monto mayor a 0</div>");
+	// }else{
+		// //si origen y destino es igual muestra error
+		// if(cuentaOrigen == cuentaDestino){
+			// $('#errorMessage').show().html("<div class='alert alert-danger' role='alert'><strong>Oh Margot!!</strong> No se puede seleccionar la misma cuenta como origen y destino</div>");
+		// }else{
 
-		}
-	}
-}
-
-
-function cambiarDinero(deMoneda, aMoneda, monto){
-
-	//
-	var moneda1 = deMoneda;
-	var moneda2 = aMoneda;
-
-	catizacion = ;
+		// }
+	// }
+// }
 
 
+// function cambiarDinero(deMoneda, aMoneda, monto){
+	// //
+	// var moneda1 = deMoneda;
+	// var moneda2 = aMoneda;
 
-}
+	// catizacion = ;
+// }
 
 
 
