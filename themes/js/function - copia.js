@@ -172,32 +172,13 @@ function transferirDinero(cuentaOrigen, cuentaDestino, monto){
 		if(cuentaOrigen == cuentaDestino){
 			$('#errorMessage').show().html("<div class='alert alert-danger' role='alert'><strong>Oh Margot!!</strong> No se puede seleccionar la misma cuenta como origen y destino</div>");
 		}else{
-			
-			saberMonedaOrigen(cuentaOrigen);
-			
-			var deMoneda="";
-			var MontCuentActuD = 0;
-			var aMoneda="";
-			var MontCuentActuO = 0;
-			
-			//OREIGEN
-			setTimeout(function(){
-				deMoneda = localStorage.TipocuentaActualD;
-				MontCuentActuD = localStorage.MontocuentaActualD;
-			},500);
-			
-			//DESTINO
-			saberMonedaDestino(cuentaDestino);
-			setTimeout(function(){
-				aMoneda = localStorage.TipocuentaActualO;
-				MontCuentActuO = localStorage.MontocuentaActualO;
-			},500);
-						
-			//CAMBIARMONTO
+			//averigua el tipo de moneda de las cuentas
+			saberMoneda(cuentaOrigen);
+			var deMoneda = localStorage.TipocuentaActual;
+			saberMoneda(cuentaDestino);
+			var aMoneda = localStorage.TipocuentaActual;
 			var montoCambiado = cambiarDinero(deMoneda, aMoneda, monto);
-			
-			actualizarCuentasTransDestino(montoCambiado, cuentaDestino, MontCuentActuD);
-			actualizarCuentasTransOrigen(monto, cuentaOrigen, MontCuentActuO);
+
 			//agrega gasto en cuenta
 			//crearGasto(monto, "Transferencia", "Transferencia entre Cuentas", localStorage.userName);
 			//agrega ingreso en cuenta
@@ -205,52 +186,23 @@ function transferirDinero(cuentaOrigen, cuentaDestino, monto){
 		}
 	}
 }
-		
 
-function actualizarCuentasTransDestino(montoASumar, cuenta, montoAnterior)
-{
-	//var total = parseInt(localStorage.ImporteActualCuenta) - parseInt(gasto);
-	db.transaction(function (tx) {
-		tx.executeSql('update Cuentas set importe =? where usuario=? AND nombre=?',[montoAnterior + montoASumar, localStorage.userName, cuenta],function(tx,results){
-		});
-	});
-	//cargar(localStorage.nomCuenta, total);
-}
-
-function actualizarCuentasTransOrigen(monto, cuenta, montoAnterior)
-{
-	//var total = parseInt(localStorage.ImporteActualCuenta) - parseInt(gasto);
-	db.transaction(function (tx) {
-		tx.executeSql('update Cuentas set importe =? where usuario=? AND nombre=?',[montoAnterior - monto, localStorage.userName, cuenta],function(tx,results){
-		});
-	});
-	//cargar(localStorage.nomCuenta, total);
-}
-
-function saberMonedaDestino(cuenta){
+function saberMoneda(cuenta){
 	var tipoMoneda = "";
+
 	db.transaction(function (tx) {
 		tx.executeSql('select * from cuentas where nombre=?',[cuenta],function(tx,results){
 			for(var i = 0; i<results.rows.length;i++)
 			{
 				//alert(results.rows.item(i).moneda);
-				localStorage.setItem('TipocuentaActualD', results.rows.item(i).nombre);
-				localStorage.setItem('MontocuentaActualD', results.rows.item(i).importe);
+				localStorage.setItem('TipocuentaActual', results.rows.item(i).nombre);
 			}
 		});
-	});
-}
-function saberMonedaOrigen(cuenta){
-	var tipoMoneda = "";
-	db.transaction(function (tx) {
-		tx.executeSql('select * from cuentas where nombre=?',[cuenta],function(tx,results){
-			for(var i = 0; i<results.rows.length;i++)
-			{
-				//alert(results.rows.item(i).moneda);
-				localStorage.setItem('TipocuentaActualO', results.rows.item(i).nombre);
-				localStorage.setItem('MontocuentaActualO', results.rows.item(i).importe);
-			}
-		});
+		// tx.executeSql('select * from cuentas where nombre=?',[cuenta],function(tx,results){
+		// 	var auxMoneda = results.rows.item(1).text;
+		// 	alert(auxMoneda);
+		// 	localStorage.setItem("TipocuentaActual", auxMoneda)
+		// });
 	});
 }
 

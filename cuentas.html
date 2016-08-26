@@ -73,12 +73,12 @@
 		//GENERAR GRAFICA
 		function parametrosGrafica(){
 			db.transaction(function (tx) {
-				tx.executeSql('Select SUM(importe) FROM Movimientos WHERE nomCuenta =? AND tipoMov=? AND usuario=?',[localStorage.nomCuenta, "Gasto", localStorage.userName],function(tx,results){
-					tx.executeSql('Select SUM(importe) FROM Movimientos WHERE nomCuenta =? AND tipoMov=? AND usuario=?',[localStorage.nomCuenta, "Ingreso", localStorage.userName],function(tx,results2){
-						var auxTotGasto = results.rows.item(0).text;
-						var auxTotIngreso = results2.rows.item(0).text;
-						alert(auxTotGasto);
-						alert(auxTotIngreso);
+				tx.executeSql('Select SUM(importe) as suma FROM Movimientos WHERE nomCuenta =? AND tipoMov=? AND usuario=?',[localStorage.nomCuenta, "Gasto", localStorage.userName],function(tx,results){
+					tx.executeSql('Select SUM(importe) as suma FROM Movimientos WHERE nomCuenta =? AND tipoMov=? AND usuario=?',[localStorage.nomCuenta, "Ingreso", localStorage.userName],function(tx,results2){
+						var auxTotGasto = results.rows.item(0).suma;
+						var auxTotIngreso = results2.rows.item(0).suma;
+						//alert(auxTotGasto);
+						//alert(auxTotIngreso);
 						mostrarGrafica(auxTotGasto, auxTotIngreso);
 					});
 				});
@@ -86,35 +86,37 @@
 		}
 		
 		//MOSTRAR GRAFICA
-		function mostrarGrafica(){
-			var totalIngresos = [5000];
-			var totalGastos = [2800];
-			var ticks = ['May', 'June', 'July', 'August'];
-			var plot1 = $.jqplot('chartdiv', [totalGastos, totalIngresos],
-			{
-					seriesDefaults:{
-						renderer:$.jqplot.BarRenderer,
-						rendererOptions: {fillToZero: true }
-					},
-					series:[
-						{label:'Ingresos'},
-						{label:'Gastos'},
-					],
-					legend: {
-						show: true,
-						placement: 'outsideGrid'
-					},
-					axes: {
-						xaxis:{
-							renderer: $.jqplot.CategoryAxisRenderer,
-							ticks: ticks
+		function mostrarGrafica(totGasto, totIngreso){
+			//var totalIngresos = [5000];
+			//var totalGastos = [2800];
+			var ticks = ['Gastos', 'Ingresos'];
+			setTimeout(function(){
+				var plot1 = $.jqplot('chartdiv', [[totGasto, totIngreso]],
+				{
+						seriesDefaults:{
+							renderer:$.jqplot.BarRenderer,
+							rendererOptions: {fillToZero: true }
 						},
-						yaxis:{
-							pad: 1.05,
-							tickOptions: {formatString: '$%d'}
+						series:[
+							{label:'Ingresos'},
+							{label:'Gastos'},
+						],
+						legend: {
+							show: true,
+							placement: 'outsideGrid'
+						},
+						axes: {
+							xaxis:{
+								renderer: $.jqplot.CategoryAxisRenderer,
+								ticks: ticks
+							},
+							yaxis:{
+								pad: 1.05,
+								tickOptions: {formatString: '$%d'}
+							}
 						}
-					}
-			})
+				});
+			},500);
 		}	
 		
 		
@@ -209,7 +211,7 @@
 		<div data-role="content" id='contenido'>			
 			<p id="nomUsuario">Nombre Usuario</p>
 			<hr>
-			<a data-role='button' href="#chartdiv" onclick="generarGrafica()" >Ver grafica</a>
+			<a data-role='button' href="#chartdiv" onclick="parametrosGrafica()" >Ver grafica</a>
 			<a data-role='button' href="#agregarIngreso" onclick="agregarIngreso()" >+ Agregar Ingreso</a>
 			<a data-role='button' href="#agregarGasto" onclick="agregarGasto()" >- Agregar Gasto</a>
 			<hr>
